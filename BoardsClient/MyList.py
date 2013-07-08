@@ -40,14 +40,16 @@ class MyListComponent(GUIComponent, object):
         self.onSelectionChanged = [ ]
         
         try:
-            self.categoryPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, IPTVListComponent.ICON_CATEGORY))
-            self.videoPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, IPTVListComponent.ICON_VIDEO))
-            self.searchPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, IPTVListComponent.ICON_SEARCH))
-            self.newthreadPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, IPTVListComponent.ICON_NEWTHREAD))
-            self.oldthreadPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, IPTVListComponent.ICON_OLDTHREAD))
+            self.categoryPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, self.ICON_CATEGORY))
+            print("loaded")
+            self.searchPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, self.ICON_SEARCH))
+            print("loaded")
+            self.newthreadPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, self.ICON_NEWTHREAD))
+            print("loaded")
+            self.oldthreadPIX = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, self.ICON_OLDTHREAD))
+            print("loaded")
         except:
             self.categoryPIX = None
-            self.videoPIX = None
             self.searchPIX = None
             self.newthreadPIX = None
             self.oldthreadPIX = None

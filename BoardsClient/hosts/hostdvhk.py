@@ -76,8 +76,6 @@ class MyHost(IHost):
         self.DBG = True
         COOKIEFILE = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/cache/') + 'dvhk.cookie'
         
-        self.sortList = config.plugins.BoardReader.sortuj.value
-        
         # for grouped urllist.txt
         self.catDict = None
         self.categoryList = [] # 'LEKTOR', 'KOMEDIA'

@@ -304,6 +304,7 @@ class PlayerSelectorWidget(Screen):
     def ok_pressed(self):
         idx = self.currLine * self.numOfCol +  self.dispX
         if idx < self.numOfItems:
+            print "selected" + str(self.currList[idx][1])
             self.close(self.currList[idx])
         else:
             self.close(None)

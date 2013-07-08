@@ -32,7 +32,7 @@ config.plugins.BoardReader.showcover = ConfigYesNo(default = True)
 config.plugins.BoardReader.deleteIcons = ConfigSelection(default = "-1", choices = [("0", "zawsze"),("1", "po dniu"),("3", "po trzech dniach"),("7", "po tygodniu"),("30", "po miesiącu"),("-1", "nigdy")]) 
 config.plugins.BoardReader.showinextensions = ConfigYesNo(default = True)
 config.plugins.BoardReader.showinMainMenu = ConfigYesNo(default = False)
-config.plugins.BoardReader.ListaGraficzna = ConfigYesNo(default = True)
+config.plugins.BoardReader.ListaGraficzna = ConfigYesNo(default = True) #do wywalenia uzywamy tylko graficznej
 config.plugins.BoardReader.NaszaSciezka = ConfigText(default = "/hdd/movie/", fixed_size = False)
 config.plugins.BoardReader.AktualizacjaWmenu = ConfigYesNo(default = False)
 config.plugins.BoardReader.devHelper = ConfigYesNo(default = False)
@@ -65,7 +65,7 @@ for hostName in gListOfHostsNames:
 class ConfigMenu(Screen, ConfigListScreen):
 
     skin = """
-    <screen name="IPTV config" position="center,center" size="540,440" title="" backgroundColor="#31000000" >
+    <screen name="Boards Client config" position="center,center" size="540,440" title="" backgroundColor="#31000000" >
 
             <widget name="config" position="10,10" size="520,395" zPosition="1" transparent="0" backgroundColor="#31000000" scrollbarMode="showOnDemand" />
             <widget name="key_green" position="0,405" zPosition="2" size="100,35" valign="center" halign="right" font="Regular;22" transparent="1" foregroundColor="green" />
@@ -123,7 +123,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.onLayoutFinish.append(self.layoutFinished)
         
     def layoutFinished(self):
-        self.setTitle("IPTV Player - ustawienia")
+        self.setTitle("Boards Client config")
 
     def runSetup(self):
 
@@ -131,13 +131,6 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.list = [ getConfigListEntry("Ikony na liście:", config.plugins.BoardReader.showcover) ]
         if config.plugins.BoardReader.showcover.value:
             self.list.append(getConfigListEntry("    Usuwaj ikony:", config.plugins.BoardReader.deleteIcons))
-        self.list.append(getConfigListEntry("Sortować listy?", config.plugins.BoardReader.sortuj))            
-        self.list.append(getConfigListEntry("Graficzna lista player-ów?", config.plugins.BoardReader.ListaGraficzna))
-        if config.plugins.BoardReader.ListaGraficzna.value == True:
-            self.list.append(getConfigListEntry("    Wielkość ikon", config.plugins.BoardReader.IconsSize))
-            self.list.append(getConfigListEntry("    Liczba wierszy", config.plugins.BoardReader.numOfRow))
-            self.list.append(getConfigListEntry("    Liczba kolumn", config.plugins.BoardReader.numOfCol))
-            
         self.list.append(getConfigListEntry("Katalog na dane cache:", config.plugins.BoardReader.SciezkaCache))
         self.list.append(getConfigListEntry("Katalog na chwilowe dane (temp):", config.plugins.BoardReader.NaszaTMP))
         
@@ -217,8 +210,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.close()
         
     def changeSubOptions(self):
-        if self["config"].getCurrent()[1] in [config.plugins.BoardReader.buforowanie,
-                                              config.plugins.BoardReader.showcover,
+        if self["config"].getCurrent()[1] in [config.plugins.BoardReader.showcover,
                                               config.plugins.BoardReader.ListaGraficzna,
                                               ]:
             self.runSetup()

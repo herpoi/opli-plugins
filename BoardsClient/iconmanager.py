@@ -56,7 +56,7 @@ class IconManager:
         if '0' == config.plugins.BoardReader.deleteIcons.value:
             removeAllIconsFromPath(config.plugins.BoardReader.SciezkaCache.value)
             
-        print "Delete IconMenager"
+        print "iconmanager.py del Delete IconManager"
         
     def stopWorkThread(self):
         self.lockDQ.acquire()

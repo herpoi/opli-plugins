@@ -568,15 +568,14 @@ class BoardReaderWidget(Screen):
             except:
                 options.extend((("Aktualizacja zablokowana z powodu braku modułu tarfile", "noupdate"),))
         
-        if config.plugins.BoardReader.ListaGraficzna.value == False:
-            self.session.openWithCallback(self.selectHostCallback, ChoiceBox, title = "Wybierz player", list = options)
-        else:
-            from playerselector import PlayerSelectorWidget
-            self.session.openWithCallback(self.selectHostCallback, PlayerSelectorWidget, list = options)
+        from playerselector import PlayerSelectorWidget
+        self.session.openWithCallback(self.selectHostCallback, PlayerSelectorWidget, list = options)
+        print "aqqq"
         return
     
     def selectHostCallback(self, ret):
         hasIcon = False
+        printDBG("Selected host" + ret[1])
         if ret:               
             if ret[1] == "noupdate":
                 self.close()
@@ -590,15 +589,15 @@ class BoardReaderWidget(Screen):
                     try:
                         self.hostName = ret[1]
                         _temp = __import__('hosts.host' + self.hostName, globals(), locals(), ['MyHost'], -1)
-                        self.host = _temp.IPTVHost()
+                        self.host = _temp.MyHost()
                     except:
-                        printDBG( 'Cannot import class IPTVHost for host: "%s"' % ret[1] )
+                        printDBG( 'Cannot import class MyHost for host: "%s"' % ret[1] )
                         self.close()
                         return
                 else:
                     self.hostName = ret[1]
-                    _temp = __import__('hosts.host' + self.hostName, globals(), locals(), ['IPTVHost'], -1)
-                    self.host = _temp.IPTVHost()
+                    _temp = __import__('hosts.host' + self.hostName, globals(), locals(), ['MyHost'], -1)
+                    self.host = _temp.MyHost()
                 
             if self.showMessageNoFreeSpaceForIcon and hasIcon:
                 self.showMessageNoFreeSpaceForIcon = False
