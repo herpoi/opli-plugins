@@ -224,12 +224,12 @@ class pageParser:
         self.captcha = captchaParser()
         
         #config
-        self.COOKIE_PATH = resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/cache/')
-        self.hd3d_login = config.plugins.iptvplayer.hd3d_login.value
-        self.hd3d_password = config.plugins.iptvplayer.hd3d_password.value
+        self.COOKIE_PATH = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/cache/')
+        self.hd3d_login = config.plugins.BoardReader.hd3d_login.value
+        self.hd3d_password = config.plugins.BoardReader.hd3d_password.value
         
-        self.maxvideo_login = config.plugins.iptvplayer.maxvideo_login.value
-        self.maxvideo_password = config.plugins.iptvplayer.maxvideo_password.value
+        self.maxvideo_login = config.plugins.BoardReader.maxvideo_login.value
+        self.maxvideo_password = config.plugins.BoardReader.maxvideo_password.value
 
     def parserPUTLOCKER(self,url):
         query_data = { 'url': url.replace('file', 'embed'), 'use_host': False, 'use_cookie': False, 'use_post': False, 'return_data': True }

@@ -7,10 +7,10 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 from ihost import CDisplayListItem
 
 class MyListComponent(GUIComponent, object):
-    ICON_CATEGORY = 'Extensions/IPTVPlayer/icons/CategoryItem.png'
-    ICON_SEARCH = 'Extensions/IPTVPlayer/icons/SearchItem.png'
-    ICON_NEWTHREAD = 'Extensions/IPTVPlayer/icons/forum_new.png'
-    ICON_OLDTHREAD = 'Extensions/IPTVPlayer/icons/forum_old.png' 
+    ICON_CATEGORY = 'Extensions/BoardsClient/icons/CategoryItem.png'
+    ICON_SEARCH = 'Extensions/BoardsClient/icons/SearchItem.png'
+    ICON_NEWTHREAD = 'Extensions/BoardsClient/icons/forum_new.png'
+    ICON_OLDTHREAD = 'Extensions/BoardsClient/icons/forum_old.png' 
     def buildEntry(self, item):
         width = self.l.getItemSize().width()
         res = [ None ]

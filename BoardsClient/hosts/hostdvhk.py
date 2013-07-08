@@ -2,10 +2,10 @@
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.ihost import IHost, CDisplayListItem, RetHost, CUrlItem
-from libs.tools import printDBG
-import Plugins.Extensions.IPTVPlayer.libs.pCommon as pCommon
-from Plugins.Extensions.IPTVPlayer.libs.vbulletin import GetWebPage, GetDVHKforumContent, GetForumsList, GetThreadsList, GetFullThread as vb_GetFullThread
+from Plugins.Extensions.BoardsClient.ihost import IHost, CDisplayListItem, RetHost, CUrlItem
+from Plugins.Extensions.BoardsClient.libs.tools import printDBG
+import Plugins.Extensions.BoardsClient.libs.pCommon as pCommon
+from Plugins.Extensions.BoardsClient.libs.vbulletin import GetWebPage, GetDVHKforumContent, GetForumsList, GetThreadsList, GetFullThread as vb_GetFullThread
 
 ###################################################
 # FOREIGN import
@@ -26,7 +26,7 @@ config.plugins.BoardReader.dvhk_password = ConfigText(default = "", fixed_size =
 config.plugins.BoardReader.dvhk_BlockedIDs = ConfigText(default = "7,8,98,31,19,17,103", fixed_size = False)
 
 def gettytul():
-    return "Czytnik forum DVHK"
+    return "forum DVHK"
 
 def GetConfigList():
     optionList = []
@@ -46,8 +46,8 @@ def compare(item1, item2):
     else:
         return 0
 
-class IPTVHost(IHost):
-    PATH_TO_LOGO = resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/icons/dvhklogo.png')
+class MyHost(IHost):
+    PATH_TO_LOGO = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/dvhklogo.png')
     
     #{'Name': 'OGÓLNE TV-SAT', 'Desc': '', 'IMG': '', 'catURL': '/forumdisplay.php?f=3', 'CatLIST': [],, 'forumlevel': (0-2) },
     TREE_TAB = []
@@ -74,9 +74,9 @@ class IPTVHost(IHost):
     def __init__(self):
         # urls
         self.DBG = True
-        COOKIEFILE = resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/cache/') + 'dvhk.cookie'
+        COOKIEFILE = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/cache/') + 'dvhk.cookie'
         
-        self.sortList = config.plugins.iptvplayer.sortuj.value
+        self.sortList = config.plugins.BoardReader.sortuj.value
         
         # for grouped urllist.txt
         self.catDict = None
@@ -87,9 +87,9 @@ class IPTVHost(IHost):
         self.cm = pCommon.common()
         self.searchPattern = ''
         
-        self.username = config.plugins.iptvplayer.dvhk_login.value
-        self.password = config.plugins.iptvplayer.dvhk_password.value
-        self.BlockedIDs = config.plugins.iptvplayer.dvhk_BlockedIDs.value
+        self.username = config.plugins.BoardReader.dvhk_login.value
+        self.password = config.plugins.BoardReader.dvhk_password.value
+        self.BlockedIDs = config.plugins.BoardReader.dvhk_BlockedIDs.value
         #zapelnienie TREE_TAB {'Name': 'OGÓLNE TV-SAT', 'Desc': '', 'IMG': '', 'catURL': '/forumdisplay.php?f=3', 'CatLIST': [], 'forumlevel': (0-2) },
         self.TREE_TAB = []
         

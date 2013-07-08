@@ -197,10 +197,10 @@ def GetWebPage(url = 'forum.dvhk.pl', vdir = '/search.php?do=getnew', uname = ''
         try:
             file = open("/etc/enigma2/settings")
             for line in file:
-                if line.startswith('config.plugins.iptvplayer.dvhk_login=' ) :
+                if line.startswith('config.plugins.BoardReader.dvhk_login=' ) :
                     uname=line.split("=")[1].strip()
                     printDBG('Znaleziono uname:' + uname + '\n')
-                if line.startswith('config.plugins.iptvplayer.dvhk_password=' ) :
+                if line.startswith('config.plugins.BoardReader.dvhk_password=' ) :
                     passwd=line.split("=")[1].strip()
                     printDBG('Znaleziono passwd: XXXXXXX\n')
                 if uname != '' and passwd != '':

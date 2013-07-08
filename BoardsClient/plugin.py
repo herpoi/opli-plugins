@@ -47,7 +47,7 @@ from os import remove as os_remove, path as os_path
 def Plugins(**kwargs):
     list = [PluginDescriptor(name="Boards Client", description=_("Watch video materials from IPTV services"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
     list.append(PluginDescriptor(name="Boards Client", description=_("Watch video materials from IPTV services"), where = PluginDescriptor.WHERE_MENU, fnc=startIPTVfromMenu))
-    if config.plugins.iptvplayer.showinextensions.value:
+    if config.plugins.BoardReader.showinextensions.value:
         list.append (PluginDescriptor(name="Boards Client", description=_("Watch video materials from IPTV services"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
     return list
 
@@ -57,7 +57,7 @@ def Plugins(**kwargs):
 def startIPTVfromMenu(menuid, **kwargs):
     if menuid == "system":
         return [(_("Configure Boards Client"), mainSetup, "boardsclient_config", None)]
-    elif menuid == "mainmenu" and config.plugins.iptvplayer.showinMainMenu.value == True:
+    elif menuid == "mainmenu" and config.plugins.BoardReader.showinMainMenu.value == True:
         return [("Boards Client", main, "boardsclient_main", None)]
     else:
         return []
@@ -69,7 +69,7 @@ def mainSetup(session,**kwargs):
 #                   For IPTV components
 ####################################################
 from asynccall import AsyncMethod
-from iptvlist import IPTVListComponent
+from MyList import MyListComponent
 
 
 #####################################################
@@ -78,7 +78,7 @@ from iptvlist import IPTVListComponent
 # interface for hosts
 from ihost import IHost, CDisplayListItem, RetHost, CUrlItem
 ######################################################
-from iconmanager import IconMenager
+from iconmanager import IconManager
 from cover import Cover
 
 ######################################################
@@ -93,18 +93,18 @@ def main(session,**kwargs):
     session.open(BoardReaderWidget)
 
 class BoardReaderWidget(Screen):
-
+    Plugin_PATH = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/')
     sz_w = getDesktop(0).size().width() - 190
     sz_h = getDesktop(0).size().height() - 195
-    printDBG("[IPTVPlayer] desktop size %dx%d wersja[%s]\n" % (sz_w+90, sz_h+100, wersja) )
+    printDBG("[BoardReader] desktop size %dx%d wersja[%s]\n" % (sz_w+90, sz_h+100, wersja) )
     if sz_h < 500:
         sz_h += 4
     skin = """
-        <screen name="BoardReaderWidget" position="center,center" title="IPTV Player wersja %s" size="%d,%d">
-         <ePixmap position="5,9" zPosition="4" size="30,30" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/IPTVPlayer/icons/red.png" transparent="1" alphatest="on" />
-         <ePixmap position="180,9" zPosition="4" size="30,30" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/IPTVPlayer/icons/yellow.png" transparent="1" alphatest="on" />
-         <ePixmap position="385,9" zPosition="4" size="30,30" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/IPTVPlayer/icons/green.png" transparent="1" alphatest="on" />
-         <ePixmap position="670,9" zPosition="4" size="30,30" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/IPTVPlayer/icons/blue.png" transparent="1" alphatest="on" />
+        <screen name="BoardReaderWidget" position="center,center" title="BoardsClient v. %s" size="%d,%d">
+         <ePixmap position="5,9" zPosition="4" size="30,30" pixmap="%s/icons/red.png" transparent="1" alphatest="on" />
+         <ePixmap position="180,9" zPosition="4" size="30,30" pixmap="%s/icons/yellow.png" transparent="1" alphatest="on" />
+         <ePixmap position="385,9" zPosition="4" size="30,30" pixmap="%s/icons/green.png" transparent="1" alphatest="on" />
+         <ePixmap position="670,9" zPosition="4" size="30,30" pixmap="%s/icons/blue.png" transparent="1" alphatest="on" />
          <widget render="Label" source="key_red" position="45,9" size="140,27" zPosition="5" valign="center" halign="left" backgroundColor="black" font="Regular;21" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
          <widget render="Label" source="key_yellow" position="220,9" size="180,27" zPosition="5" valign="center" halign="left" backgroundColor="black" font="Regular;21" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
          <widget render="Label" source="key_green" position="425,9" size="300,27" zPosition="5" valign="center" halign="left" backgroundColor="black" font="Regular;21" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
@@ -121,6 +121,7 @@ class BoardReaderWidget(Screen):
         </screen>""" %(
             wersja, # wersja wtyczki
             sz_w, sz_h, # size
+            Plugin_PATH,Plugin_PATH,Plugin_PATH,Plugin_PATH, # icons
             sz_w - 135, # size headertext
             sz_w - 100, # size statustext
             sz_w - 10, sz_h - 255, # size list
@@ -134,7 +135,7 @@ class BoardReaderWidget(Screen):
             sz_w - 125, # position logo
             sz_h - 130, # position line bottom
             sz_w / 2, # size line bottom
-            resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/icons/line.png'),
+            resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/line.png'),
             )
    
     def __init__(self, session):
@@ -152,7 +153,7 @@ class BoardReaderWidget(Screen):
         self["key_yellow"] = StaticText("Show pictures")
         self["key_blue"] = StaticText("Info")
 
-        self["list"] = IPTVListComponent()
+        self["list"] = MyListComponent()
         self["list"].connectSelChanged(self.onSelectionChanged)
         self["statustext"] = Label("Pobieranie listy...")
         self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions"],
@@ -177,15 +178,15 @@ class BoardReaderWidget(Screen):
         self["playerlogo"] = Cover()
         
         self.showMessageNoFreeSpaceForIcon = False
-        self.iconMenager = None
-        if config.plugins.iptvplayer.showcover.value:
-            if not os_path.exists(config.plugins.iptvplayer.SciezkaCache.value):
-                iptvtools_mkdirs(config.plugins.iptvplayer.SciezkaCache.value)
-            if iptvtools_FreeSpace(config.plugins.iptvplayer.SciezkaCache.value,10):
-                self.iconMenager = IconMenager(self.checkIconCallBack, True)
+        self.iconManager = None
+        if config.plugins.BoardReader.showcover.value:
+            if not os_path.exists(config.plugins.BoardReader.SciezkaCache.value):
+                iptvtools_mkdirs(config.plugins.BoardReader.SciezkaCache.value)
+            if iptvtools_FreeSpace(config.plugins.BoardReader.SciezkaCache.value,10):
+                self.iconManager = IconManager(self.checkIconCallBack, True)
             else:
                 self.showMessageNoFreeSpaceForIcon = True
-                self.iconMenager = IconMenager(self.checkIconCallBack, False)
+                self.iconManager = IconManager(self.checkIconCallBack, False)
   
         self.onClose.append(self.__onClose)
         #self.onLayoutFinish.append(self.selectHost)
@@ -226,7 +227,6 @@ class BoardReaderWidget(Screen):
         gMainFunctionsQueue.clearQueue()
             
         gMainFunctionsQueue.registerFunction(self.reloadList)
-        gMainFunctionsQueue.registerFunction(self.selectMainVideoLinks)
         gMainFunctionsQueue.registerFunction(self.checkIconCallBack)
         gMainFunctionsQueue.registerFunction(self.updateCover)
         gMainFunctionsQueue.registerFunction(self.displayIcon)
@@ -311,7 +311,7 @@ class BoardReaderWidget(Screen):
                 return
 
         
-    # method called from IconMenager when a new icon has been dowlnoaded
+    # method called from IconManager when a new icon has been dowlnoaded
     def checkIconCallBack(self, ret):
         printDBG("checkIconCallBack")
  
@@ -325,7 +325,7 @@ class BoardReaderWidget(Screen):
         
     def displayIcon(self, ret = None):
         # check if displays icon is enabled in options
-        if not config.plugins.iptvplayer.showcover.value or None == self.iconMenager :
+        if not config.plugins.BoardReader.showcover.value or None == self.iconManager :
             return
             
         
@@ -333,7 +333,7 @@ class BoardReaderWidget(Screen):
             return
         
         selItem = self.getSelItem()
-        # when ret is != None the method is called from IconMenager 
+        # when ret is != None the method is called from IconManager 
         # and in this variable the url for icon which was downloaded 
         # is returned 
         if ret != None and selItem != None:
@@ -343,10 +343,10 @@ class BoardReaderWidget(Screen):
                 return
             
         # Display icon
-        if selItem and selItem.iconimage != '' and self.iconMenager:
+        if selItem and selItem.iconimage != '' and self.iconManager:
             self["cover"].hide()
             # check if we have this icon and get the path to this icon on disk
-            iconPath = self.iconMenager.getIconPathFromAAueue(selItem.iconimage)
+            iconPath = self.iconManager.getIconPathFromAAueue(selItem.iconimage)
             printDBG( 'displayIcon -> getIconPathFromAAueue: ' + selItem.iconimage )
             if iconPath != '':
                 printDBG( 'updateIcon: ' + iconPath )
@@ -381,7 +381,7 @@ class BoardReaderWidget(Screen):
                 selItem = self.getSelItem()
                 if selItem and selItem.iconimage != '':
                     # check if we have this icon and get the path to this icon on disk
-                    iconPath = self.iconMenager.getIconPathFromAAueue(selItem.iconimage)
+                    iconPath = self.iconManager.getIconPathFromAAueue(selItem.iconimage)
                     if iconPath == retDict["FileName"]:
                         # now we are sure that we have right icon, so let show it
                         self[retDict["Ident"]].show()
@@ -540,11 +540,11 @@ class BoardReaderWidget(Screen):
         for hostName in hostsList:
             hostEnabled  = False
             try:
-                exec('if config.plugins.iptvplayer.host' + hostName + '.value: hostEnabled = True')
+                exec('if config.plugins.BoardReader.host' + hostName + '.value: hostEnabled = True')
             except:
                 hostEnabled = False
             if True == hostEnabled:
-                if not config.plugins.iptvplayer.devHelper.value:
+                if not config.plugins.BoardReader.devHelper.value:
                     try:
                         _temp = __import__('hosts.host' + hostName, globals(), locals(), ['gettytul'], -1)
                         title = _temp.gettytul()
@@ -561,14 +561,14 @@ class BoardReaderWidget(Screen):
         #if len(brokenHostList) > 0:
         #    self.session.open(MessageBox, "Poniższe playery są niepoprawne lub brakuje im pewnych modułów.\n" + '\n'.join(brokenHostList), type = MessageBox.TYPE_INFO, timeout = 10 )
      
-        if config.plugins.iptvplayer.AktualizacjaWmenu.value == True:
+        if config.plugins.BoardReader.AktualizacjaWmenu.value == True:
             try:
                 import tarfile 
                 options.extend((("Aktualizacja (autorestart)", "update"),))
             except:
                 options.extend((("Aktualizacja zablokowana z powodu braku modułu tarfile", "noupdate"),))
         
-        if config.plugins.iptvplayer.ListaGraficzna.value == False:
+        if config.plugins.BoardReader.ListaGraficzna.value == False:
             self.session.openWithCallback(self.selectHostCallback, ChoiceBox, title = "Wybierz player", list = options)
         else:
             from playerselector import PlayerSelectorWidget
@@ -586,10 +586,10 @@ class BoardReaderWidget(Screen):
                 self.close()
                 return
             else:
-                if not config.plugins.iptvplayer.devHelper.value:
+                if not config.plugins.BoardReader.devHelper.value:
                     try:
                         self.hostName = ret[1]
-                        _temp = __import__('hosts.host' + self.hostName, globals(), locals(), ['IPTVHost'], -1)
+                        _temp = __import__('hosts.host' + self.hostName, globals(), locals(), ['MyHost'], -1)
                         self.host = _temp.IPTVHost()
                     except:
                         printDBG( 'Cannot import class IPTVHost for host: "%s"' % ret[1] )
@@ -602,7 +602,7 @@ class BoardReaderWidget(Screen):
                 
             if self.showMessageNoFreeSpaceForIcon and hasIcon:
                 self.showMessageNoFreeSpaceForIcon = False
-                self.session.open(MessageBox, "Brak wolnego miejsca w katalogu %s. \nNowe ikony nie beda ściągane. \nAby nowe ikony były dostępne wymagane jest 10MB wolnego miejsca." % (config.plugins.iptvplayer.SciezkaCache.value), type = MessageBox.TYPE_INFO, timeout = 10 )
+                self.session.open(MessageBox, "Brak wolnego miejsca w katalogu %s. \nNowe ikony nie beda ściągane. \nAby nowe ikony były dostępne wymagane jest 10MB wolnego miejsca." % (config.plugins.BoardReader.SciezkaCache.value), type = MessageBox.TYPE_INFO, timeout = 10 )
         else:
             self.close()
             return
@@ -634,8 +634,8 @@ class BoardReaderWidget(Screen):
         WersjaGIT=iptvtools_GetGITversion()
         msgtxt = 'Autorzy NIE ponoszą, żadnej odpowiedzialności za uszkodzenia tunera spowodowane działaniem tej wtyczki oraz wykorzystywaniem jej w celu nielegalnego pobierania materiałów video!!!'
         if WersjaGIT != wersja:
-            if iptvtools_FreeSpace(config.plugins.iptvplayer.NaszaTMP.value,2):
-                StatusUpdate = iptvtools_UpdateIPTV_from_GIT(config.plugins.iptvplayer.NaszaTMP.value)
+            if iptvtools_FreeSpace(config.plugins.BoardReader.NaszaTMP.value,2):
+                StatusUpdate = iptvtools_UpdateIPTV_from_GIT(config.plugins.BoardReader.NaszaTMP.value)
                 if StatusUpdate == "OK":
                     self.session.open(MessageBox, "Restart oPLI po aktualizacji wtyczki do wersji %s...\n Czytałeś już licencję?\nJeśli tak, to wiesz, że\n\n" % WersjaGIT + msgtxt, type = MessageBox.TYPE_INFO, timeout = 5 )
                     from enigma import quitMainloop
@@ -644,7 +644,7 @@ class BoardReaderWidget(Screen):
                     self.session.open(MessageBox, "Błąd aktualizacji wtyczki, spróbuj ponownie za jakiś czas.\n Status: %s \n\n Dla przypomnienia -\n\n" % StatusUpdate + msgtxt, type = MessageBox.TYPE_INFO, timeout = 10 )
                     return
             else:
-                self.session.open(MessageBox, "Brak wolnego miejsca w katalogu %s" % (config.plugins.iptvplayer.NaszaTMP.value), type = MessageBox.TYPE_INFO, timeout = 10 )
+                self.session.open(MessageBox, "Brak wolnego miejsca w katalogu %s" % (config.plugins.BoardReader.NaszaTMP.value), type = MessageBox.TYPE_INFO, timeout = 10 )
                 return
         else:
             self.session.open(MessageBox, "Posiadasz ostatnią wersję wtyczki :)\n\n Dla przypomnienia - \n\n" + msgtxt, type = MessageBox.TYPE_INFO, timeout = 10 )
@@ -758,21 +758,21 @@ class BoardReaderWidget(Screen):
         
         
         ####################################################
-        #                   iconMenager
+        #                   iconManager
         ####################################################
         iconList = []
         # fill icon List for icon manager 
         # if an user whant to see icons
-        if config.plugins.iptvplayer.showcover.value and self.iconMenager:
+        if config.plugins.BoardReader.showcover.value and self.iconManager:
             for it in self.currList:
                 if it.iconimage != '':
                     iconList.append(it.iconimage)
         
         if len(iconList):
             # List has been changed so clear old Queue
-            self.iconMenager.clearDQueue()
+            self.iconManager.clearDQueue()
             # a new list of icons should be downloaded
-            self.iconMenager.addToDQueue(iconList)
+            self.iconManager.addToDQueue(iconList)
         #####################################################
         
         

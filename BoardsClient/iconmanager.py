@@ -21,7 +21,7 @@ from Components.config import config
 
 
 class IconManager:
-    DOWNLOADED_IMAGE_PATH = config.plugins.iptvplayer.SciezkaCache.value
+    DOWNLOADED_IMAGE_PATH = config.plugins.BoardReader.SciezkaCache.value
 
     def __init__(self, updateFun = None, downloadNew = True):
         # download queue
@@ -37,7 +37,7 @@ class IconManager:
         self.updateFun = updateFun
         
         if not os_path.exists(self.DOWNLOADED_IMAGE_PATH):
-            iptvtools_mkdirs(config.plugins.iptvplayer.SciezkaCache.value)
+            iptvtools_mkdirs(config.plugins.BoardReader.SciezkaCache.value)
         
         #load available icon from disk
         self.loadHistoryFromDisk()
@@ -53,8 +53,8 @@ class IconManager:
         self.clearDQueue()
         self.clearAAueue()
         
-        if '0' == config.plugins.iptvplayer.deleteIcons.value:
-            removeAllIconsFromPath(config.plugins.iptvplayer.SciezkaCache.value)
+        if '0' == config.plugins.BoardReader.deleteIcons.value:
+            removeAllIconsFromPath(config.plugins.BoardReader.SciezkaCache.value)
             
         print "Delete IconMenager"
         
@@ -89,7 +89,7 @@ class IconManager:
         path = self.DOWNLOADED_IMAGE_PATH + "/"
         
         try:
-            delta = int(config.plugins.iptvplayer.deleteIcons.value)
+            delta = int(config.plugins.BoardReader.deleteIcons.value)
         except:
             delta = -1
         

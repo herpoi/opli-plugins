@@ -25,11 +25,11 @@ class PlayerSelectorWidget(Screen):
    
     def __init__(self, session, list):
         #printDBG("PlayerSelectorWidget length of list: %i" % len(list))
-        #printDBG("PlayerSelectorWidget icons size: " + config.plugins.iptvplayer.IconsSize.value)
-        if len(list) > 16 and int(config.plugins.iptvplayer.IconsSize.value) == 100:
+        #printDBG("PlayerSelectorWidget icons size: " + config.plugins.BoardReader.IconsSize.value)
+        if len(list) > 16 and int(config.plugins.BoardReader.IconsSize.value) == 100:
             numOfRow = 4
             numOfCol = 5
-        elif len(list) > 12 and int(config.plugins.iptvplayer.IconsSize.value) == 100:
+        elif len(list) > 12 and int(config.plugins.BoardReader.IconsSize.value) == 100:
             numOfRow = 4
             numOfCol = 4
         elif len(list) > 9:
@@ -41,13 +41,16 @@ class PlayerSelectorWidget(Screen):
         elif len(list) > 4:
             numOfRow = 2
             numOfCol = 3
-        else:
+        elif len(list) > 2:
             numOfRow = 2
+            numOfCol = 2
+        else:
+            numOfRow = 1
             numOfCol = 2
         
         try:
-            confNumOfRow = int(config.plugins.iptvplayer.numOfRow.value)
-            confNumOfCol = int(config.plugins.iptvplayer.numOfCol.value)
+            confNumOfRow = int(config.plugins.BoardReader.numOfRow.value)
+            confNumOfCol = int(config.plugins.BoardReader.numOfCol.value)
             if confNumOfRow > 0: numOfRow = confNumOfRow
             if confNumOfRow > 0: numOfCol = confNumOfCol
         except:
@@ -58,8 +61,8 @@ class PlayerSelectorWidget(Screen):
         offsetCoverY = 80
         
         # image size
-        coverWidth = int(config.plugins.iptvplayer.IconsSize.value)
-        coverHeight = int(config.plugins.iptvplayer.IconsSize.value)
+        coverWidth = int(config.plugins.BoardReader.IconsSize.value)
+        coverHeight = int(config.plugins.BoardReader.IconsSize.value)
         
         # space/distance between images
         disWidth = int(coverWidth / 3 )
@@ -85,7 +88,7 @@ class PlayerSelectorWidget(Screen):
         tmpY = coverHeight + disHeight
         
         skin = """
-            <screen name="IPTVPlayerWidget" position="center,center" title="IPTV Player %s" size="%d,%d">
+            <screen name="BoardReaderWidget" position="center,center" title="BoardsClient v. %s" size="%d,%d">
             <widget name="statustext" position="10,0" zPosition="1" size="%d,70" font="Regular;26" halign="center" valign="center" transparent="1"/>
             <widget name="marker" zPosition="2" position="%d,%d" size="%d,%d" transparent="1" alphatest="on" />
             """  %(
@@ -123,15 +126,15 @@ class PlayerSelectorWidget(Screen):
         self.currList = list
         # numbers of items in self.currList
         self.numOfItems = len(self.currList)
-        self.IconsSize = int(config.plugins.iptvplayer.IconsSize.value) #do ladowania ikon
+        self.IconsSize = int(config.plugins.BoardReader.IconsSize.value) #do ladowania ikon
         self.MarkerSize = self.IconsSize + 45
         
         # load icons
         self.pixmapList = []
         for idx in range(0,self.numOfItems):
-            self.pixmapList.append( LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/icons/PlayerSelector/' + self.currList[idx][1] + '%i.png' % self.IconsSize)) )
+            self.pixmapList.append( LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/PlayerSelector/' + self.currList[idx][1] + '%i.png' % self.IconsSize)) )
 
-        self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/icons/PlayerSelector/marker%i.png' % self.MarkerSize))
+        self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/PlayerSelector/marker%i.png' % self.MarkerSize))
         
         self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions"],
         {
@@ -240,7 +243,7 @@ class PlayerSelectorWidget(Screen):
                 strIndex = "cover_%s%s" % (x,y)
                 print("updateIcon for self[%s]" % strIndex)
                 if idx < self.numOfItems:
-                    #self[strIndex].updateIcon( resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/icons/PlayerSelector/' + self.currList[idx][1] + '.png'))
+                    #self[strIndex].updateIcon( resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/PlayerSelector/' + self.currList[idx][1] + '.png'))
                     self[strIndex].setPixmap(self.pixmapList[idx])
                     self[strIndex].show()
                     idx += 1
