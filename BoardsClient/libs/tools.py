@@ -76,7 +76,7 @@ def printDBG( DBGtxt ):
         elif DBG == 'console':
             print DBGtxt
         elif DBG == 'debugfile':
-            f = open('/hdd/iptv.dbg', 'a')
+            f = open('/tmp/BoardsClient.dbg', 'a')
             f.write(DBGtxt + '\n')
             f.close
     except:
@@ -154,7 +154,7 @@ def mkdirs(newdir):
 
 def GetGITversion():
     try:
-        req = urllib2.Request("http://gitorious.org/iptv-pl-dla-openpli/iptv-pl-dla-openpli/blobs/master/IPTVPlayer/_version.py")
+        req = urllib2.Request("http://gitorious.org/opli-plugins/opli-plugins/blobs/master/BoardsClient/_version.py")
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3 Gecko/2008092417 Firefox/3.0.3')
         response = urllib2.urlopen(req)
         html_doc = str(response.read())
@@ -172,9 +172,9 @@ def GetGITversion():
     else:
         return "??"
 
-def GetMaster(NaszTarFile="/tmp/iptvplugin.tar.gz"):
+def GetMaster(NaszTarFile="/tmp/plugin.tar.gz"):
     try:
-        GITfile = urllib2.urlopen("http://gitorious.org/iptv-pl-dla-openpli/iptv-pl-dla-openpli/archive-tarball/master")
+        GITfile = urllib2.urlopen("http://gitorious.org/opli-plugins/opli-plugins/archive-tarball/master")
         output = open(NaszTarFile,'wb')
         output.write(GITfile.read())
         output.close()
@@ -188,7 +188,7 @@ def GetMaster(NaszTarFile="/tmp/iptvplugin.tar.gz"):
 def UpdateIPTV_from_GIT(sciezkaTMP="/tmp/"):
     ret = ""
     Porzadki(sciezkaTMP)
-    NaszTarFile=sciezkaTMP + 'iptvplugin.tar.gz'
+    NaszTarFile=sciezkaTMP + 'plugin.tar.gz'
     ret = GetMaster(NaszTarFile)
     if os.path.exists(NaszTarFile) and ret == "OK":
         if not tarfile.is_tarfile(NaszTarFile):
@@ -207,13 +207,13 @@ def UpdateIPTV_from_GIT(sciezkaTMP="/tmp/"):
     else:
         if not tarfile.is_tarfile(NaszTarFile):
             #sprobujmy na pale rozpakowac bo mipsy jakies pokastorawne ze skryptow sa. ;)
-            os.system('cd ' + sciezkaTMP + '; tar -xzf iptvplugin.tar.gz; sync')
-            if not os.path.exists(sciezkaTMP + 'iptv-pl-dla-openpli-iptv-pl-dla-openpli/IPTVPlayer'):
+            os.system('cd ' + sciezkaTMP + '; tar -xzf plugin.tar.gz; sync')
+            if not os.path.exists(sciezkaTMP + 'opli-plugins-opli-plugins/BoardsClient'):
                 return "Niepoprawny format pliku %s" % NaszTarFile
             else:
                 if config.plugins.BoardReader.cleanup.value:
                    os.system('rm -rf /usr/lib/enigma2/python/Plugins/Extensions/BoardsClient/*')
-                os.system('cp -rf %siptv-pl-dla-openpli-iptv-pl-dla-openpli/IPTVPlayer/* /usr/lib/enigma2/python/Plugins/Extensions/BoardsClient/' % sciezkaTMP)
+                os.system('cp -rf %sopli-plugins-opli-plugins/BoardsClient/* /usr/lib/enigma2/python/Plugins/Extensions/BoardsClient/' % sciezkaTMP)
                 os.system('sync')
                 Porzadki(sciezkaTMP)
                 return "OK"
@@ -221,12 +221,12 @@ def UpdateIPTV_from_GIT(sciezkaTMP="/tmp/"):
             tar = tarfile.open(NaszTarFile)
             tar.extractall(path= sciezkaTMP)
             os.system('sync')
-            if not os.path.exists(sciezkaTMP + 'iptv-pl-dla-openpli-iptv-pl-dla-openpli/IPTVPlayer'):
+            if not os.path.exists(sciezkaTMP + 'opli-plugins-opli-plugins/BoardsClient'):
                 return "Błąd rozpakowania pliku master.tar.gz"
             else:
                 if config.plugins.BoardReader.cleanup.value:
                    os.system('rm -rf /usr/lib/enigma2/python/Plugins/Extensions/BoardsClient/*')
-                os.system('cp -rf %siptv-pl-dla-openpli-iptv-pl-dla-openpli/IPTVPlayer/* /usr/lib/enigma2/python/Plugins/Extensions/BoardsClient/' % sciezkaTMP)
+                os.system('cp -rf %sopli-plugins-opli-plugins/BoardsClient/* /usr/lib/enigma2/python/Plugins/Extensions/BoardsClient/' % sciezkaTMP)
                 os.system('sync')
                 Porzadki(sciezkaTMP)
                 return "OK"
@@ -234,114 +234,12 @@ def UpdateIPTV_from_GIT(sciezkaTMP="/tmp/"):
         
 def Porzadki(sciezkaTMP="/tmp/"):
     #porzadki w razie czego
-    if os.path.exists(sciezkaTMP + 'iptvplugin.tar.gz'):
-        os.remove(sciezkaTMP + 'iptvplugin.tar.gz')
-    if os.path.exists(sciezkaTMP + 'iptv-pl-dla-openpli-iptv-pl-dla-openpli'):
+    if os.path.exists(sciezkaTMP + 'plugin.tar.gz'):
+        os.remove(sciezkaTMP + 'plugin.tar.gz')
+    if os.path.exists(sciezkaTMP + 'opli-plugins-opli-plugins'):
         import shutil
-        shutil.rmtree(sciezkaTMP + 'iptv-pl-dla-openpli-iptv-pl-dla-openpli')
+        shutil.rmtree(sciezkaTMP + 'opli-plugins-opli-plugins')
 
-#####################################################
-# Generowanie bezposredniego linka do filmu z Novamov
-#####################################################
-def Novamov(fileUrl):
-    req = urllib2.Request(fileUrl)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3 Gecko/2008092417 Firefox/3.0.3')
-    response = urllib2.urlopen(req)
-    html_doc = str(response.read())
-    response.close()
-
-    r = re.search('flashvars.domain="(.+?)".+?flashvars.file="(.+?)".+?flashvars.filekey="(.+?)"', html_doc, re.DOTALL)
-    if r:
-        printDBG( r.groups())
-        domain, filename, filekey = r.groups()
-        printDBG( domain )
-        url = domain + "/api/player.api.php?key=" + filekey + "&file=" + filename
-        req = urllib2.Request(url)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3 Gecko/2008092417 Firefox/3.0.3')
-        response = urllib2.urlopen(req)
-        html_doc = str(response.read())
-        response.close()
-        printDBG( html_doc )
-        html_doc = html_doc.split("&")
-        url = str(html_doc[0][4:])
-        return url
-    else:
-        return "NA"
-#######################################################
-# Generowanie bezposredniego linka do filmu z Putlocker
-#######################################################
-def Putlocker(fileUrl):
-    cj = CookieJar()
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-    urllib2.install_opener(opener)
-    req = urllib2.Request(fileUrl)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3 Gecko/2008092417 Firefox/3.0.3')
-    response = ""
-    html_doc =""
-    try:response = urllib2.urlopen(req)
-    except URLError, e:
-        print e.reason
-    except HTTPError, e:
-        print e.reason
-    if not response is "":
-        try: html_doc = str(response.read())    
-        except URLError, e:
-            print e.reason
-        except HTTPError, e:
-            print e.reason
-        response.close()
-    
-    plhash =""
-    if not html_doc is "":
-        plhash = (re.compile ('<input type="hidden" value="([0-9a-f]+?)" name="hash">').findall(html_doc))
-    if plhash is "":
-        print ("Host Resolver > File not found error:\n")
-        return "NA"
-    else:    
-        time.sleep(7)
-        
-        try:
-            data = {'hash': plhash[0], 'confirm':'Continue as Free User'}
-        except:
-            print ("Brak opcji 'Continue as Free User', prawdopodobnie plik nie istnieje.\n")
-            return "NA"
-        data = urllib.urlencode(data)
-        req = urllib2.Request(fileUrl, data)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3 Gecko/2008092417 Firefox/3.0.3')
-        response = urllib2.urlopen(req)
-        html_doc = str(response.read())
-        response.close()
-        plplaylist = (re.compile ("playlist: \'/get_file.php\\?stream=(.+?)\'").findall(html_doc))
-        if not plplaylist:
-            print("Host Resolver > Unable to resolve:\n")
-            return "NA"
-                    
-        else:
-            printDBG( fileUrl )
-            if (fileUrl.find("http://www.putlocker.com/file/") > -1 ):
-                url = "http://www.putlocker.com/get_file.php?stream=" + plplaylist[0]
-            elif (fileUrl.find("http://www.sockshare.com/file/") > -1 ):
-                url = "http://www.sockshare.com/get_file.php?stream=" + plplaylist[0]    
-            req = urllib2.Request(url)
-            req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3 Gecko/2008092417 Firefox/3.0.3')
-            response = urllib2.urlopen(req)
-            html_doc = str(response.read())
-            response.close()
-            plurl = (re.compile ('<media:content url="(.+?)" type="video/x-flv"').findall(html_doc))
-
-            if not plurl:
-                print("Host Resolver > Unable to resolve:\n")
-                return "NA"
-
-            else:
-                try:
-                    url = plurl[0].replace("&amp;", "&") 
-                    url = url.replace("'", "")
-                except:     
-                    url = plurl[0]
-                printDBG("[iptv] iptvtools.Putlocker ### " + url + " ###")
-                return url
-                
                 
 ########################################################
 #                     For icon menager
