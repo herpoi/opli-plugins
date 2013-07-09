@@ -575,8 +575,8 @@ class BoardReaderWidget(Screen):
     
     def selectHostCallback(self, ret):
         hasIcon = False
-        printDBG("Selected host" + ret[1])
         if ret:               
+            printDBG("Selected host" + ret[1])
             if ret[1] == "noupdate":
                 self.close()
                 return
