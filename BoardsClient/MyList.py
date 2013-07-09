@@ -53,7 +53,7 @@ class MyListComponent(GUIComponent, object):
             self.searchPIX = None
             self.newthreadPIX = None
             self.oldthreadPIX = None
-            print("Problem with loading markers for IPTV List")
+            print("Problem with loading markers for MyList")
 
     def connectSelChanged(self, fnc):
         if not fnc in self.onSelectionChanged:
