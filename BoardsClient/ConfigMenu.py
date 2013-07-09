@@ -29,15 +29,14 @@ from confighost import ConfigHostMenu
 
 config.plugins.BoardReader = ConfigSubsection()
 config.plugins.BoardReader.showcover = ConfigYesNo(default = True)
-config.plugins.BoardReader.deleteIcons = ConfigSelection(default = "-1", choices = [("0", "zawsze"),("1", "po dniu"),("3", "po trzech dniach"),("7", "po tygodniu"),("30", "po miesiącu"),("-1", "nigdy")]) 
+config.plugins.BoardReader.deleteIcons = ConfigSelection(default = "0", choices = [("0", "zawsze"),("1", "po dniu"),("3", "po trzech dniach"),("7", "po tygodniu"),("30", "po miesiącu"),("-1", "nigdy")]) 
 config.plugins.BoardReader.showinextensions = ConfigYesNo(default = True)
 config.plugins.BoardReader.showinMainMenu = ConfigYesNo(default = False)
-config.plugins.BoardReader.ListaGraficzna = ConfigYesNo(default = True) #do wywalenia uzywamy tylko graficznej
 config.plugins.BoardReader.NaszaSciezka = ConfigText(default = "/hdd/movie/", fixed_size = False)
 config.plugins.BoardReader.AktualizacjaWmenu = ConfigYesNo(default = False)
 config.plugins.BoardReader.devHelper = ConfigYesNo(default = False)
 
-config.plugins.BoardReader.SciezkaCache = ConfigText(default = "/hdd/IPTVCache/", fixed_size = False)
+config.plugins.BoardReader.SciezkaCache = ConfigText(default = "/tmp/IPTVCache/", fixed_size = False)
 config.plugins.BoardReader.NaszaTMP = ConfigText(default = "/tmp/", fixed_size = False)
 
 config.plugins.BoardReader.debugprint = ConfigSelection(default = "", choices = [("", "nie"),("console", "tak, na konsolę"),("debugfile", "tak, do pliku /hdd/iptv.dbg")]) 
@@ -85,7 +84,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.onChangedEntry = [ ]
         self.list = [ ]
         ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
-        self.setup_title = "Konfiguracja ustawień"
+        self.setup_title = "Settings config"
 
         self["key_green"] = Label(_("Save"))
         self["key_red"] = Label(_("Cancel"))
@@ -116,7 +115,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         # prepar config entries for hosts Enabling/Disabling
         self.listConfigHostsEntries = []
         for hostName in gListOfHostsNames:
-            exec( 'self.listConfigHostsEntries.append(getConfigListEntry("Player ' + hostName + ' więcej->[OK]", config.plugins.BoardReader.host' + hostName + '))' )
+            exec( 'self.listConfigHostsEntries.append(getConfigListEntry("Press OK to set ' + hostName + ' options", config.plugins.BoardReader.host' + hostName + '))' )
         
         self.firstHostIdx = -1
         self.runSetup()
@@ -137,7 +136,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.list.append(getConfigListEntry("Wyświetlać wtyczkę na liście rozszerzeń?", config.plugins.BoardReader.showinextensions))
         self.list.append(getConfigListEntry("Wyświetlać wtyczkę w głównym menu?", config.plugins.BoardReader.showinMainMenu))
         self.list.append(getConfigListEntry("Wyświetlać aktualizację w głównym menu?", config.plugins.BoardReader.AktualizacjaWmenu))
-        self.list.append(getConfigListEntry("Włączyć DEBUG?", config.plugins.BoardReader.debugprint))
+        self.list.append(getConfigListEntry("Enable DEBUG?", config.plugins.BoardReader.debugprint))
         self.list.append(getConfigListEntry("Wyłączyć ochronę hostów? (Błąd wywołuje GS)", config.plugins.BoardReader.devHelper))
         self.list.append(getConfigListEntry("Czyszczenie przy aktualizacji?", config.plugins.BoardReader.cleanup))
         
@@ -155,7 +154,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         #aktualizacja
         from libs.tools import UpdateIPTV_from_GIT as iptvtools_UpdateIPTV_from_GIT, FreeSpace as iptvtools_FreeSpace
         WersjaGIT=iptvtools_GetGITversion()
-        msgtxt = 'Autorzy NIE ponoszą, żadnej odpowiedzialności za uszkodzenia tunera spowodowane działaniem tej wtyczki oraz wykorzystywaniem jej w celu nielegalnego pobierania materiałów video!!!'
+        msgtxt = 'Autorzy NIE ponoszą, żadnej odpowiedzialności za uszkodzenia tunera spowodowane działaniem tej wtyczki oraz wykorzystywaniem jej w celu nielegalnego pobierania plików!!!'
         if iptvtools_FreeSpace(config.plugins.BoardReader.NaszaTMP.value,2):
             StatusUpdate = iptvtools_UpdateIPTV_from_GIT(config.plugins.BoardReader.NaszaTMP.value)
             if StatusUpdate == "OK":

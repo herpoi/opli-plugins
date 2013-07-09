@@ -55,9 +55,10 @@ def Plugins(**kwargs):
 # Konfiguracja wtyczki
 ####################################################
 def startIPTVfromMenu(menuid, **kwargs):
-    if menuid == "system":
-        return [(_("Configure Boards Client"), mainSetup, "boardsclient_config", None)]
-    elif menuid == "mainmenu" and config.plugins.BoardReader.showinMainMenu.value == True:
+    #if menuid == "system":
+        #return [(_("Configure Boards Client"), mainSetup, "boardsclient_config", None)]
+    #el
+    if menuid == "mainmenu" and config.plugins.BoardReader.showinMainMenu.value == True:
         return [("Boards Client", main, "boardsclient_main", None)]
     else:
         return []
@@ -563,14 +564,9 @@ class BoardReaderWidget(Screen):
         #if len(brokenHostList) > 0:
         #    self.session.open(MessageBox, "Poniższe playery są niepoprawne lub brakuje im pewnych modułów.\n" + '\n'.join(brokenHostList), type = MessageBox.TYPE_INFO, timeout = 10 )
      
-        if config.plugins.BoardReader.AktualizacjaWmenu.value == True:
-            try:
-                import tarfile 
-                options.extend((("Aktualizacja (autorestart)", "update"),))
-            except:
-                options.extend((("Aktualizacja zablokowana z powodu braku modułu tarfile", "noupdate"),))
-        
+        options.extend((("Config", "config"),))
         from playerselector import PlayerSelectorWidget
+
         self.session.openWithCallback(self.selectHostCallback, PlayerSelectorWidget, list = options)
         return
     
@@ -584,6 +580,10 @@ class BoardReaderWidget(Screen):
             elif ret[1] == "update":
                 self.GitUpdate()
                 self.close()
+                return
+            elif ret[1] == "config":
+                self.session.open(ConfigMenu)
+                #self.close()
                 return
             else:
                 if not config.plugins.BoardReader.devHelper.value:
