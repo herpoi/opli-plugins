@@ -574,16 +574,8 @@ class BoardReaderWidget(Screen):
         hasIcon = False
         if ret:               
             printDBG("Selected host" + ret[1])
-            if ret[1] == "noupdate":
-                self.close()
-                return
-            elif ret[1] == "update":
-                self.GitUpdate()
-                self.close()
-                return
-            elif ret[1] == "config":
-                self.session.open(ConfigMenu)
-                #self.close()
+            if ret[1] == "config":
+                self.session.openWithCallback(self.selectHost, ConfigMenu)
                 return
             else:
                 if not config.plugins.BoardReader.devHelper.value:
@@ -630,26 +622,6 @@ class BoardReaderWidget(Screen):
         
     #end selectHostCallback(self, ret):
 
-    def GitUpdate(self):
-        WersjaGIT=iptvtools_GetGITversion()
-        msgtxt = 'Autorzy NIE ponoszą, żadnej odpowiedzialności za uszkodzenia tunera spowodowane działaniem tej wtyczki oraz wykorzystywaniem jej w celu nielegalnego pobierania materiałów video!!!'
-        if WersjaGIT != wersja:
-            if iptvtools_FreeSpace(config.plugins.BoardReader.NaszaTMP.value,2):
-                StatusUpdate = iptvtools_UpdateIPTV_from_GIT(config.plugins.BoardReader.NaszaTMP.value)
-                if StatusUpdate == "OK":
-                    self.session.open(MessageBox, "Restart oPLI po aktualizacji wtyczki do wersji %s...\n Czytałeś już licencję?\nJeśli tak, to wiesz, że\n\n" % WersjaGIT + msgtxt, type = MessageBox.TYPE_INFO, timeout = 5 )
-                    from enigma import quitMainloop
-                    quitMainloop(3) 
-                else:
-                    self.session.open(MessageBox, "Błąd aktualizacji wtyczki, spróbuj ponownie za jakiś czas.\n Status: %s \n\n Dla przypomnienia -\n\n" % StatusUpdate + msgtxt, type = MessageBox.TYPE_INFO, timeout = 10 )
-                    return
-            else:
-                self.session.open(MessageBox, "Brak wolnego miejsca w katalogu %s" % (config.plugins.BoardReader.NaszaTMP.value), type = MessageBox.TYPE_INFO, timeout = 10 )
-                return
-        else:
-            self.session.open(MessageBox, "Posiadasz ostatnią wersję wtyczki :)\n\n Dla przypomnienia - \n\n" + msgtxt, type = MessageBox.TYPE_INFO, timeout = 10 )
-        return
-        
     def is_stream(self, url):
         if url[:7] == 'rtmp://':
             return True
