@@ -46,7 +46,7 @@ class ConfigHostMenu(Screen, ConfigListScreen):
                 "blue": self.keyVirtualKeyBoard,
             }, -2)
 
-        self.host = __import__('hosts.host' + hostName, globals(), locals(), ['GetConfigList'], -1)
+        self.host = __import__('forums.forum' + hostName, globals(), locals(), ['GetConfigList'], -1)
         self.runSetup()
         self.onLayoutFinish.append(self.layoutFinished)
         

@@ -196,7 +196,7 @@ class ConfigMenu(Screen, ConfigListScreen):
                     hostName = gListOfHostsNames[idx]
                     if IsHostEnabled(hostName):
                         try:
-                            self.host = __import__('hosts.host' + hostName, globals(), locals(), ['GetConfigList'], -1)
+                            self.host = __import__('forums.forum' + hostName, globals(), locals(), ['GetConfigList'], -1)
                             if( len(self.host.GetConfigList()) < 1 ):
                                 printDBG('ConfigMenu host "%s" does not have additiona configs' % hostName)
                             self.session.open(ConfigHostMenu, hostName = hostName)
