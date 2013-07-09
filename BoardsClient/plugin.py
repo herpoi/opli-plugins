@@ -546,15 +546,17 @@ class BoardReaderWidget(Screen):
             if True == hostEnabled:
                 if not config.plugins.BoardReader.devHelper.value:
                     try:
-                        _temp = __import__('hosts.host' + hostName, globals(), locals(), ['gettytul'], -1)
+                        _temp = __import__('forums.forum' + hostName, globals(), locals(), ['gettytul'], -1)
                         title = _temp.gettytul()
+                        printDBG('host name "%s"' % hostName)
                     except:
                         printDBG('get host name exception for host "%s"' % hostName)
                         brokenHostList.append('host'+hostName)
                         continue # do not use default name if import name will failed
                 else:
-                    _temp = __import__('hosts.host' + hostName, globals(), locals(), ['gettytul'], -1)
+                    _temp = __import__('forums.forum' + hostName, globals(), locals(), ['gettytul'], -1)
                     title = _temp.gettytul()
+                    printDBG('host name "%s"' % hostName)
                 options.extend(((title, hostName),))
         options.sort()
         
@@ -570,7 +572,6 @@ class BoardReaderWidget(Screen):
         
         from playerselector import PlayerSelectorWidget
         self.session.openWithCallback(self.selectHostCallback, PlayerSelectorWidget, list = options)
-        print "aqqq"
         return
     
     def selectHostCallback(self, ret):
@@ -588,7 +589,7 @@ class BoardReaderWidget(Screen):
                 if not config.plugins.BoardReader.devHelper.value:
                     try:
                         self.hostName = ret[1]
-                        _temp = __import__('hosts.host' + self.hostName, globals(), locals(), ['MyHost'], -1)
+                        _temp = __import__('forums.forum' + self.hostName, globals(), locals(), ['MyHost'], -1)
                         self.host = _temp.MyHost()
                     except:
                         printDBG( 'Cannot import class MyHost for host: "%s"' % ret[1] )
@@ -596,7 +597,7 @@ class BoardReaderWidget(Screen):
                         return
                 else:
                     self.hostName = ret[1]
-                    _temp = __import__('hosts.host' + self.hostName, globals(), locals(), ['MyHost'], -1)
+                    _temp = __import__('forums.forum' + self.hostName, globals(), locals(), ['MyHost'], -1)
                     self.host = _temp.MyHost()
                 
             if self.showMessageNoFreeSpaceForIcon and hasIcon:

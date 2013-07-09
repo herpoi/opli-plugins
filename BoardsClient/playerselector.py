@@ -18,7 +18,7 @@ from libs.tools import printDBG
 try:
     from _version import version as wersja
 except:
-    wersja="XX.YY.ZZ"
+    wersja="XX.YY"
 
 
 class PlayerSelectorWidget(Screen):

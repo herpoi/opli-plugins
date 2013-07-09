@@ -87,7 +87,7 @@ def printDBG( DBGtxt ):
 #####################################################
 def GetHostsList():
     printDBG('getHostsList begin')
-    HOST_PATH = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/hosts/')
+    HOST_PATH = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/forums/')
     lhosts = [] 
     
     fileList = os.listdir( HOST_PATH )
@@ -95,10 +95,10 @@ def GetHostsList():
         # separate file name and file extension
         fileName, fileExt = os.path.splitext(wholeFileName)
         nameLen = len( fileName )
-        if fileExt in ['.pyo', '.pyc', '.py'] and nameLen >  4 and fileName[:4] == 'host' and fileName.find('_blocked_') == -1:
-            if fileName[4:] not in lhosts:
-                lhosts.append( fileName[4:] )
-                printDBG('BoardsClient.tools.getHostsList add host with fileName: "%s"' % fileName[4:])
+        if fileExt in ['.pyo', '.pyc', '.py'] and nameLen >  5 and fileName[:5] == 'forum' and fileName.find('_blocked_') == -1:
+            if fileName[5:] not in lhosts:
+                lhosts.append( fileName[5:] )
+                printDBG('BoardsClient.tools.getHostsList add host with fileName: "%s"' % fileName[5:])
     printDBG('BoardsClient.tools.getHostsList end')
     lhosts.sort()
     return lhosts
@@ -378,7 +378,7 @@ class CSearchHistoryHelper():
 from Components.Language import language
 import gettext
 
-PluginLanguageDomain = "IPTVPlayer"
+PluginLanguageDomain = "TranslatedTexts"
 PluginLanguagePath = "Extensions/BoardsClient/locale"
 
 def localeInit():
