@@ -45,10 +45,10 @@ from os import remove as os_remove, path as os_path
 # Wywołanie wtyczki w roznych miejscach
 ####################################################
 def Plugins(**kwargs):
-    list = [PluginDescriptor(name="Boards Client", description=_("Watch video materials from IPTV services"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
-    list.append(PluginDescriptor(name="Boards Client", description=_("Watch video materials from IPTV services"), where = PluginDescriptor.WHERE_MENU, fnc=startIPTVfromMenu))
+    list = [PluginDescriptor(name="Boards Client", description=_("Various forums client"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
+    list.append(PluginDescriptor(name="Boards Client", description=_("Various forums client"), where = PluginDescriptor.WHERE_MENU, fnc=startIPTVfromMenu))
     if config.plugins.BoardReader.showinextensions.value:
-        list.append (PluginDescriptor(name="Boards Client", description=_("Watch video materials from IPTV services"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
+        list.append (PluginDescriptor(name="Boards Client", description=_("Various forums client"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
     return list
 
 ####################################################
