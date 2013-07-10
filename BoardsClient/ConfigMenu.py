@@ -4,20 +4,6 @@
 #  autorzy: j00zek, samsamsam
 #
 #aktualizacja
-try:
-    import tarfile 
-    UpdateAvailable = True
-except:
-    UpdateAvailable = False
-
-if UpdateAvailable == True:
-    try:
-        from _version import version as wersja
-        from libs.tools import GetGITversion as iptvtools_GetGITversion
-        if iptvtools_GetGITversion() == wersja:
-            UpdateAvailable = False
-    except:
-        pass
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Components.ActionMap import ActionMap, HelpableActionMap
@@ -89,6 +75,20 @@ class ConfigMenu(Screen, ConfigListScreen):
         self["key_green"] = Label(_("Save"))
         self["key_red"] = Label(_("Cancel"))
         self["key_blue"] = Label('VK')
+        try:
+            import tarfile 
+            UpdateAvailable = True
+        except:
+            UpdateAvailable = False
+
+        if UpdateAvailable == True:
+            try:
+                from _version import version as wersja
+                from libs.tools import GetGITversion as iptvtools_GetGITversion
+                if iptvtools_GetGITversion() == wersja:
+                    UpdateAvailable = False
+            except:
+                pass
         if UpdateAvailable == True:
             self["key_yellow"] = Label('Aktualizacja')
             self["actions"] = ActionMap(["SetupActions", "ColorActions"],
@@ -127,7 +127,7 @@ class ConfigMenu(Screen, ConfigListScreen):
     def runSetup(self):
 
         # WYGLAD
-        self.list = [ getConfigListEntry("Ikony na liście:", config.plugins.BoardReader.showcover) ]
+        self.list = [ getConfigListEntry("Show icons:", config.plugins.BoardReader.showcover) ]
         if config.plugins.BoardReader.showcover.value:
             self.list.append(getConfigListEntry("    Usuwaj ikony:", config.plugins.BoardReader.deleteIcons))
         self.list.append(getConfigListEntry("Katalog na dane cache:", config.plugins.BoardReader.SciezkaCache))
