@@ -209,9 +209,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.close()
         
     def changeSubOptions(self):
-        if self["config"].getCurrent()[1] in [config.plugins.BoardReader.showcover,
-                                              config.plugins.BoardReader.ListaGraficzna,
-                                              ]:
+        if self["config"].getCurrent()[1] in [config.plugins.BoardReader.showcover]:
             self.runSetup()
         
     def keyLeft(self):
