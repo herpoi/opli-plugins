@@ -9,7 +9,7 @@ from libs.tools import mkdirs as iptvtools_mkdirs, \
                       checkIconName, \
                       removeAllIconsFromPath, \
                       getModifyDeltaDateInDays, \
-                      FreeSpace as iptvtools_FreeSpace
+                      FreeSpace as iptvtools_FreeSpace, TranslateTXT as _
 
 ###################################################
 # FOREIGN import

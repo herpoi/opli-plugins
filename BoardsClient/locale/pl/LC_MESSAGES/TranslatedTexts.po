@@ -1,0 +1,116 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-07-07 12:54+0200\n"
+"PO-Revision-Date: 2013-07-07 13:33+0100\n"
+"Last-Translator: j00zek <nospam@email.pl>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#pli menu messages
+msgid "Press OK to set %s options"
+msgstr "Naciśnij OK aby ustawić opcje dla %s"
+
+msgid "Update"
+msgstr "Aktualizacja"
+
+msgid "v. up-2-date"
+msgstr "Wersja aktualna"
+
+msgid "Boards Client config"
+msgstr "Konfiguracja klienta Forum"
+
+msgid "Show icons:"
+msgstr "Wyświetl ikony:"
+
+msgid "    Delete icons:"
+msgstr "    Kasuj ikony:"
+
+msgid "Cache folder:"
+msgstr "Katalog cache"
+
+msgid "Temp folder:"
+msgstr "Katalog temp"
+
+msgid "Show plugin on the Extensions menu?"
+msgstr "Wyświetl wtyczkę na liście roszerzeń"
+
+msgid "Show plugin in main menu?"
+msgstr "Wyświetl wtyczkę w głównym menu"
+
+msgid "Enable DEBUG?"
+msgstr "Włączyć DEBUG?"
+
+msgid "Disable secured mode? (error ends with GS)"
+msgstr "Wyłączyć tryb bezpieczeństwa? (błąd = GS)"
+
+msgid "Clean folder during update?"
+msgstr "Czyścić system podczas aktualizacji?"
+
+msgid "Autors don't take any responsibility for issues with tunners when using this plugin and using it to illegal download of the files"
+msgstr "Autorzy NIE ponoszą, żadnej odpowiedzialności za uszkodzenia tunera spowodowane działaniem tej wtyczki oraz wykorzystywaniem jej w celu nielegalnego pobierania plików!!!"
+
+msgid "Enter value"
+msgstr "Wprowadź wartość"
+
+msgid "always"
+msgstr "zawsze"
+
+msgid "after day"
+msgstr "po dniu"
+
+msgid "after 3 days"
+msgstr "po 3 dniach"
+
+msgid "after week"
+msgstr "po tygodniu"
+
+msgid "after month"
+msgstr "po miesiącu"
+
+msgid "never"
+msgstr "nigdy"
+
+msgid "Save"
+msgstr "Zapisz"
+
+msgid "Cancel"
+msgstr "Opuść"
+
+msgid "Boards Client"
+msgstr ""
+
+msgid "Various forums client"
+msgstr ""
+
+msgid "BoardsClient v."
+msgstr ""
+
+msgid "Exit"
+msgstr ""
+
+msgid "Action cancelled!"
+msgstr "Operacja została przerwana!"
+
+msgid "Config"
+msgstr ""
+
+msgid "DVHK login:"
+msgstr "Login do DVHK:"
+
+msgid "DVHK password:"
+msgstr "Hasło do DVHK:"
+
+msgid "Blocked subforums IDs:"
+msgstr "Zablokowane podfora (ID):"
+
+msgid "Error logging to DVHK forum!!!"
+msgstr "Błąd logowania do forum DVHK!!!"
+
+msgid "Check forum settings. ;)"
+msgstr "Sprawdź ustawienia dla forum. ;)"

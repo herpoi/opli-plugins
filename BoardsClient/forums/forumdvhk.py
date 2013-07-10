@@ -3,7 +3,7 @@
 # LOCAL import
 ###################################################
 from Plugins.Extensions.BoardsClient.ihost import IHost, CDisplayListItem, RetHost, CUrlItem
-from Plugins.Extensions.BoardsClient.libs.tools import printDBG
+from Plugins.Extensions.BoardsClient.libs.tools import printDBG, TranslateTXT as _
 import Plugins.Extensions.BoardsClient.libs.pCommon as pCommon
 from Plugins.Extensions.BoardsClient.libs.vbulletin import GetWebPage, GetDVHKforumContent, GetForumsList, GetThreadsList, GetFullThread as vb_GetFullThread
 
@@ -26,13 +26,13 @@ config.plugins.BoardReader.dvhk_password = ConfigText(default = "", fixed_size =
 config.plugins.BoardReader.dvhk_BlockedIDs = ConfigText(default = "7,8,98,31,19,17,103", fixed_size = False)
 
 def gettytul():
-    return "forum DVHK"
+    return _("forum DVHK")
 
 def GetConfigList():
     optionList = []
-    optionList.append(getConfigListEntry("Login do DVHK:", config.plugins.BoardReader.dvhk_login))
-    optionList.append(getConfigListEntry("Hasło do DVHK:", config.plugins.BoardReader.dvhk_password))
-    optionList.append(getConfigListEntry("Zablokowane podfora (ID):", config.plugins.BoardReader.dvhk_BlockedIDs))
+    optionList.append(getConfigListEntry(_("DVHK login:"), config.plugins.BoardReader.dvhk_login))
+    optionList.append(getConfigListEntry(_("DVHK password:"), config.plugins.BoardReader.dvhk_password))
+    optionList.append(getConfigListEntry(_("Blocked subforums IDs:"), config.plugins.BoardReader.dvhk_BlockedIDs))
     return optionList
 
 def compare(item1, item2):
@@ -114,7 +114,7 @@ class MyHost(IHost):
                     if str(forum['ID']) not in self.BlockedIDs.split(','):
                         self.TREE_TAB.append({'Name': forum['NAME'], 'Desc': self.forumurl + str(forum['ID']), 'IMG': '', 'catURL':forum['ID'], 'CatLIST': [], 'ForumLevel': forum['LEVEL'], 'ParentID': forum['ParenID'] })
         else:
-            self.TREE_TAB.append({'Name': str('Błąd logowania do forum DVHK!!!'), 'Desc': str('Sprawdź ustawienia hosta. ;)'), 'IMG': '', 'catURL':'', 'CatLIST': [], 'ForumLevel': 0, 'ParentID': 0 })
+            self.TREE_TAB.append({'Name': str(_('Error logging to DVHK forum!!!')), 'Desc': str(_('Check forum settings. ;)')), 'IMG': '', 'catURL':'', 'CatLIST': [], 'ForumLevel': 0, 'ParentID': 0 })
         #print self.TREE_TAB
         
         return RetHost(RetHost.OK, value = self.ListTREETOHostList())

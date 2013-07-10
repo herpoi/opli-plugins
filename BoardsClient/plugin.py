@@ -45,10 +45,10 @@ from os import remove as os_remove, path as os_path
 # Wywołanie wtyczki w roznych miejscach
 ####################################################
 def Plugins(**kwargs):
-    list = [PluginDescriptor(name="Boards Client", description=_("Various forums client"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
-    list.append(PluginDescriptor(name="Boards Client", description=_("Various forums client"), where = PluginDescriptor.WHERE_MENU, fnc=startIPTVfromMenu))
+    list = [PluginDescriptor(name=_("Boards Client"), description=_("Various forums client"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
+    list.append(PluginDescriptor(name=_("Boards Client"), description=_("Various forums client"), where = PluginDescriptor.WHERE_MENU, fnc=startIPTVfromMenu))
     if config.plugins.BoardReader.showinextensions.value:
-        list.append (PluginDescriptor(name="Boards Client", description=_("Various forums client"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
+        list.append (PluginDescriptor(name=_("Boards Client"), description=_("Various forums client"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
     return list
 
 ####################################################
@@ -59,7 +59,7 @@ def startIPTVfromMenu(menuid, **kwargs):
         #return [(_("Configure Boards Client"), mainSetup, "boardsclient_config", None)]
     #el
     if menuid == "mainmenu" and config.plugins.BoardReader.showinMainMenu.value == True:
-        return [("Boards Client", main, "boardsclient_main", None)]
+        return [(_("Boards Client"), main, "boardsclient_main", None)]
     else:
         return []
     
@@ -101,7 +101,7 @@ class BoardReaderWidget(Screen):
     if sz_h < 500:
         sz_h += 4
     skin = """
-        <screen name="BoardReaderWidget" position="center,center" title="BoardsClient v. %s" size="%d,%d">
+        <screen name="BoardReaderWidget" position="center,center" title="%s %s" size="%d,%d">
          <ePixmap position="5,9" zPosition="4" size="30,30" pixmap="%s/icons/red.png" transparent="1" alphatest="on" />
          <ePixmap position="180,9" zPosition="4" size="30,30" pixmap="%s/icons/yellow.png" transparent="1" alphatest="on" />
          <ePixmap position="385,9" zPosition="4" size="30,30" pixmap="%s/icons/green.png" transparent="1" alphatest="on" />
@@ -120,6 +120,7 @@ class BoardReaderWidget(Screen):
             <widget name="playerlogo" zPosition="4" position="%d,20" size="120,40" alphatest="blend" />
             <ePixmap zPosition="4" position="5,%d" size="%d,5" pixmap="%s" transparent="1" />
         </screen>""" %(
+            _("BoardsClient v."),
             wersja, # wersja wtyczki
             sz_w, sz_h, # size
             Plugin_PATH,Plugin_PATH,Plugin_PATH,Plugin_PATH, # icons
@@ -150,9 +151,9 @@ class BoardReaderWidget(Screen):
         self.session.nav.event.append(self.__event)
 
         self["key_red"] = StaticText("Exit")
-        self["key_green"] = StaticText("Config")
-        self["key_yellow"] = StaticText("Show pictures")
-        self["key_blue"] = StaticText("Info")
+        #self["key_green"] = StaticText("Config")
+        #self["key_yellow"] = StaticText("Show pictures")
+        #self["key_blue"] = StaticText("Info")
 
         self["list"] = MyListComponent()
         self["list"].connectSelChanged(self.onSelectionChanged)
@@ -162,9 +163,9 @@ class BoardReaderWidget(Screen):
             "ok": self.ok_pressed,
             "back": self.back_pressed,
             "red": self.red_pressed,
-            "green": self.green_pressed,
-            "yellow": self.yellow_pressed,
-            "blue": self.blue_pressed,
+            #"green": self.green_pressed,
+            #"yellow": self.yellow_pressed,
+            #"blue": self.blue_pressed,
            
         }, -1)     
 
@@ -286,31 +287,6 @@ class BoardReaderWidget(Screen):
         self.session.open(MessageBox, "Blue button pressed, action TBD", type = MessageBox.TYPE_INFO, timeout = 10 )
         return
 
-    def blue_pressed_next(self, ret):
-        TextMSG = ''
-        if ret:               
-            if ret[1] == "info": #informacje o wtyczce
-                TextMSG = "samsamsam, zdzislaw22, mamrot, MarcinO, skalita informują, że zajmują się wtyczką dla WŁASNEJ przyjemności!!!"
-                self.session.open(MessageBox, TextMSG, type = MessageBox.TYPE_INFO, timeout = 10 )
-                return
-            elif ret[1] == "recstatus": #status nagrywania
-                if os_path.exists("/tmp/iptv.recording"):
-                    f = open ("/tmp/iptv.recording","r")
-                    TextMSG = f.read()
-                else:
-                    TextMSG = 'Brak pliku iptv.recording'
-                if self.nagrywanie == True:
-                    TextMSG = 'Status nagrywania:\n' + TextMSG
-                from libs.ThreadView import ThreadView
-                self.session.open(ThreadView, TextMSG)
-                #self.session.open(MessageBox, TextMSG, type = MessageBox.TYPE_INFO, timeout = 20 )
-                return
-            elif ret[1] == "recstop":
-                self.BRConsole.ePopen('killall -9 iptv.rekorder')
-                TextMSG = 'Nagrywanie zostało przerwane'
-                self.session.open(MessageBox, TextMSG, type = MessageBox.TYPE_INFO, timeout = 10 )
-                return
-
         
     # method called from IconManager when a new icon has been dowlnoaded
     def checkIconCallBack(self, ret):
@@ -419,7 +395,7 @@ class BoardReaderWidget(Screen):
         try:
             if not self.isNotInWorkThread():
                 self.workThread.Thread._Thread__stop()
-                self["statustext"].setText("Operacja została przerwana!")
+                self["statustext"].setText(_("Action cancelled!"))
                 return
         except:
             return
@@ -564,7 +540,7 @@ class BoardReaderWidget(Screen):
         #if len(brokenHostList) > 0:
         #    self.session.open(MessageBox, "Poniższe playery są niepoprawne lub brakuje im pewnych modułów.\n" + '\n'.join(brokenHostList), type = MessageBox.TYPE_INFO, timeout = 10 )
      
-        options.extend((("Config", "config"),))
+        options.extend(((_("Config"), "config"),))
         from playerselector import PlayerSelectorWidget
 
         self.session.openWithCallback(self.selectHostCallback, PlayerSelectorWidget, list = options)
