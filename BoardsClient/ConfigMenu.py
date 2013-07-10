@@ -75,6 +75,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self["key_green"] = Label(_("Save"))
         self["key_red"] = Label(_("Cancel"))
         self["key_blue"] = Label('VK')
+        self.iptvtools_GetGITversion = ''
         try:
             import tarfile 
             UpdateAvailable = True
@@ -85,6 +86,7 @@ class ConfigMenu(Screen, ConfigListScreen):
             try:
                 from _version import version as wersja
                 from libs.tools import GetGITversion as iptvtools_GetGITversion
+                self.iptvtools_GetGITversion = iptvtools_GetGITversion()
                 if iptvtools_GetGITversion() == wersja:
                     UpdateAvailable = False
             except:
@@ -153,7 +155,7 @@ class ConfigMenu(Screen, ConfigListScreen):
 
         #aktualizacja
         from libs.tools import UpdateIPTV_from_GIT as iptvtools_UpdateIPTV_from_GIT, FreeSpace as iptvtools_FreeSpace
-        WersjaGIT=iptvtools_GetGITversion()
+        WersjaGIT=self.iptvtools_GetGITversion
         msgtxt = "Autors don't take any responsibility for issues with tunners when using this plugin and using it to illegal download of the files"
         if iptvtools_FreeSpace(config.plugins.BoardReader.NaszaTMP.value,2):
             StatusUpdate = iptvtools_UpdateIPTV_from_GIT(config.plugins.BoardReader.NaszaTMP.value)
