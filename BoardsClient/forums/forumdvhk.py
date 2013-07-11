@@ -197,7 +197,7 @@ class MyHost(IHost):
         else:
             printDBG('[IPTVPlayer] zwroc Thread "' + self.CURRENT_TAB[Index]['Name'] + '" url=' + self.CURRENT_TAB[Index]['catURL'])
             self.WebPage = GetWebPage(self.mainurl,self.CURRENT_TAB[Index]['catURL'] + self.threadLastPage,self.username,self.password)
-            return vb_GetFullThread(self.WebPage)
+            return vb_GetFullThread(self.WebPage) , self.mainurl, self.CURRENT_TAB[Index]['catURL']
             
     def getListForItem(self, Index = 0, refresh = 0, selItem = None):
         print "[IPTVPlayer] hostdvhk.IPTVHost.getListForItem index: %d" % Index

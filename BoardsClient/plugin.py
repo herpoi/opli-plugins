@@ -449,10 +449,10 @@ class BoardReaderWidget(Screen):
                 elif item.type == CDisplayListItem.TYPE_NEWTHREAD or item.type == CDisplayListItem.TYPE_OLDTHREAD:
                         printDBG( "ok_pressed selected TYPE_[NEW|OLD]THREAD" )
                         self.currSelIndex = currSelIndex
-                        ThreadContent = self.host.getFullThread(self.currSelIndex)
+                        ThreadContent, mainURL, ThreadURL = self.host.getFullThread(self.currSelIndex)
                         printDBG("ThreadContent:" + ThreadContent)
                         from libs.ThreadView import ThreadView
-                        self.session.openWithCallback(self.LeaveThreadView, ThreadView, ThreadContent)
+                        self.session.openWithCallback(self.LeaveThreadView, ThreadView, ThreadContent, mainURL, ThreadURL)
                 else:
                     printDBG( "ok_pressed selected TYPE_SEARCH" )
                     self.currSelIndex = currSelIndex
