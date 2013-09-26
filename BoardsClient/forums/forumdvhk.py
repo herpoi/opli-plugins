@@ -57,7 +57,7 @@ class MyHost(IHost):
     TREE_LEVEL_IDs = [0,0,0,0,0]
     #dla wygody, aby numeracja kategorii zgadzala sie z indeksami z listy
     
-    mainurl='http://forum.dvhk.pl'
+    mainurl='http://forum.dvhk.to'
     forumurl='/forumdisplay.php?f=' #i jako parametr zawierajacy numer forum
     threadurl='/showthread.php?t=' #i jako parametr zawierajacy numer forum
     threadLastPage='&page=999'
