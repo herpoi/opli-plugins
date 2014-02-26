@@ -223,12 +223,12 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     global WebPageCharSet
     if not url.startswith('http://'):
         url = 'http://' + url
-    loginurl = url + '/index.php'
+    loginurl = url + '/index.php?action=login2'
     if not vdir.startswith('/') and not url.endswith('/'):
         vdir = '/' + vdir
     forumurl = url + vdir
-    print loginurl
-    print forumurl
+    #print loginurl
+    #print forumurl
     md5 = hashlib.md5(passwd);md5 = md5.hexdigest()
     # Options for request
     opts = {
