@@ -190,7 +190,7 @@ def GetForumContent(WebPage = -1):
 
 def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname = '', passwd = '' ):
     if uname == '' and passwd == '':
-        printDBG("GetWebPage brak uname i passwd\n")
+        printDBG("GetWebPage szukam uname i passwd\n")
         try:
             file = open("/etc/enigma2/settings")
             for line in file:
@@ -204,6 +204,21 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
                     break
         except:
             pass
+        try:
+            file = open("/usr/local/e2/etc/enigma2/settings")
+            for line in file:
+                if line.startswith('config.plugins.BoardReader.xunil_login=' ) :
+                    uname=line.split("=")[1].strip()
+                    printDBG('Znaleziono uname:' + uname + '\n')
+                if line.startswith('config.plugins.BoardReader.xunil_password=' ) :
+                    passwd=line.split("=")[1].strip()
+                    printDBG('Znaleziono passwd: XXXXXXX\n')
+                if uname != '' and passwd != '':
+                    break
+        except:
+            pass
+    if uname == '' or passwd == '':
+        printDBG("GetWebPage uname lub passwd\n")
         
     global WebPageCharSet
     if not url.startswith('http://'):
