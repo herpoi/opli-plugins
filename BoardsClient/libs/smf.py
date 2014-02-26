@@ -212,7 +212,7 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
                     printDBG('Znaleziono uname:' + uname + '\n')
                 if line.startswith('config.plugins.BoardReader.xunil_password=' ) :
                     passwd=line.split("=")[1].strip()
-                    printDBG('Znaleziono passwd: XXXXXXX\n')
+                    printDBG('Znaleziono passwd: ' + passwd + ' XXXXXXX\n')
                 if uname != '' and passwd != '':
                     break
         except:
