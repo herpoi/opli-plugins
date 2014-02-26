@@ -264,6 +264,7 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     #print kodowanie
     WebPage = response.read().decode(WebPageCharSet)
     WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ')
+    print WebPage
     #poprawka smieci po kodowaniu html-a
     if 'login.php?do=logout' in WebPage:
         printDBG('GetWebPage:Zalogowany do dvhk\n')
