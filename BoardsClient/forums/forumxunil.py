@@ -5,7 +5,7 @@
 from Plugins.Extensions.BoardsClient.ihost import IHost, CDisplayListItem, RetHost, CUrlItem
 from Plugins.Extensions.BoardsClient.libs.tools import printDBG, TranslateTXT as _
 import Plugins.Extensions.BoardsClient.libs.pCommon as pCommon
-from Plugins.Extensions.BoardsClient.libs.vbulletin import GetWebPage, GetForumContent, GetForumsList, GetThreadsList, GetFullThread as vb_GetFullThread
+from Plugins.Extensions.BoardsClient.libs.smf import GetWebPage, GetForumContent, GetForumsList, GetThreadsList, GetFullThread as vb_GetFullThread
 
 ###################################################
 # FOREIGN import
