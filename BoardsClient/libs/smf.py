@@ -223,7 +223,7 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     global WebPageCharSet
     if not url.startswith('http://'):
         url = 'http://' + url
-    loginurl = url + '/login.php?do=login'
+    loginurl = url + '/index.php'
     if not vdir.startswith('/') and not url.endswith('/'):
         vdir = '/' + vdir
     forumurl = url + vdir
