@@ -230,12 +230,11 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     md5 = hashlib.md5(passwd);md5 = md5.hexdigest()
     # Options for request
     opts = {
-    'do': 'login',
-    'vb_login_md5password': md5,
-    'vb_login_md5password_utf': md5,
-    's': '',
-    'vb_login_username': uname, 
-    'security_token': 'guest', 
+    'user': uname, 
+    'passwrd': '',
+    'cookielength': '-1',
+    'openid_identifier': '',
+    'hash_passwrd': md5,
     }
     data = urllib.urlencode(opts)
     
