@@ -30,9 +30,9 @@ def gettytul():
 
 def GetConfigList():
     optionList = []
-    optionList.append(getConfigListEntry(_("xunil login:"), config.plugins.BoardReader.dvhk_login))
-    optionList.append(getConfigListEntry(_("xunil password:"), config.plugins.BoardReader.dvhk_password))
-    optionList.append(getConfigListEntry(_("Blocked subforums IDs:"), config.plugins.BoardReader.dvhk_BlockedIDs))
+    optionList.append(getConfigListEntry(_("xunil login:"), config.plugins.BoardReader.xunil_login))
+    optionList.append(getConfigListEntry(_("xunil password:"), config.plugins.BoardReader.xunil_password))
+    optionList.append(getConfigListEntry(_("Blocked subforums IDs:"), config.plugins.BoardReader.xunil_BlockedIDs))
     return optionList
 
 def compare(item1, item2):
@@ -85,9 +85,9 @@ class MyHost(IHost):
         self.cm = pCommon.common()
         self.searchPattern = ''
         
-        self.username = config.plugins.BoardReader.dvhk_login.value
-        self.password = config.plugins.BoardReader.dvhk_password.value
-        self.BlockedIDs = config.plugins.BoardReader.dvhk_BlockedIDs.value
+        self.username = config.plugins.BoardReader.xunil_login.value
+        self.password = config.plugins.BoardReader.xunil_password.value
+        self.BlockedIDs = config.plugins.BoardReader.xunil_BlockedIDs.value
         #zapelnienie TREE_TAB {'Name': 'OGÓLNE TV-SAT', 'Desc': '', 'IMG': '', 'catURL': '/forumdisplay.php?f=3', 'CatLIST': [], 'forumlevel': (0-2) },
         self.TREE_TAB = []
         
@@ -105,7 +105,7 @@ class MyHost(IHost):
         self.TREE_LEVEL = 0
         TREE_LEVEL_IDs = [0,0,0,0,0]
         if self.StartWebPage == '':
-            self.StartWebPage = GetDVHKforumContent(GetWebPage(self.mainurl,self.dailyURL,self.username,self.password))
+            self.StartWebPage = GetForumContent(GetWebPage(self.mainurl,self.dailyURL,self.username,self.password))
         if self.StartWebPage != -1:
             if len(self.Lista_Forums) == 0:
                 self.Lista_Forums = GetForumsList(self.StartWebPage)
@@ -139,13 +139,13 @@ class MyHost(IHost):
                 self.PARRENT_ID_L1 = 0
                 self.PARRENT_ID_L2 = 0
                 if item['ForumLevel'] == 0:
-                    print '[IPTV] hostdvhk.ListTREETOHostList.Cat_URPoziom 0:' + item['Name']
+                    print '[IPTV] hostxunil.ListTREETOHostList.Cat_URPoziom 0:' + item['Name']
                     Item = CDisplayListItem(item['Name'], item['Desc'], CDisplayListItem.TYPE_CATEGORY)
                     TheList.append(Item)
                     self.CURRENT_TAB.append({'Name': item['Name'], 'Desc': item['catURL'], 'IMG': '', 'catURL':item['catURL'], 'CatLIST': [], 'ForumLevel': item['ForumLevel'], 'ParentID': item['ParentID'] })
             else:
                 if item['ParentID'] == Cat_URL and item['ForumLevel'] == self.TREE_LEVEL:
-                    print '[IPTV] hostdvhk.ListTREETOHostList.Cat_URPoziom %i :' %item['ForumLevel'] + item['Name']
+                    print '[IPTV] hostxunil.ListTREETOHostList.Cat_URPoziom %i :' %item['ForumLevel'] + item['Name']
                     Item = CDisplayListItem(item['Name'], item['Desc'], CDisplayListItem.TYPE_CATEGORY)
                     self.CURRENT_TAB.append({'Name': item['Name'], 'Desc': item['catURL'], 'IMG': '', 'catURL':item['catURL'], 'CatLIST': [], 'ForumLevel': item['ForumLevel'], 'ParentID': item['ParentID'] })
                     TheList.append(Item)
@@ -157,7 +157,7 @@ class MyHost(IHost):
             self.Lista_Threads = GetThreadsList(self.StartWebPage)
         else:
             printDBG("ListTREETOHostList:" + self.mainurl + self.forumurl + str(Cat_URL))
-            self.WebPage = GetDVHKforumContent(GetWebPage(self.mainurl,self.forumurl + str(Cat_URL),self.username,self.password))
+            self.WebPage = GetForumContent(GetWebPage(self.mainurl,self.forumurl + str(Cat_URL),self.username,self.password))
             self.Lista_Threads = GetThreadsList(self.WebPage)
 
         #i wypelnijmy liste postami
@@ -192,21 +192,21 @@ class MyHost(IHost):
         if Index > len(self.CURRENT_TAB):
             Index = Index - len(self.CURRENT_TAB)
         if len(self.CURRENT_TAB) <= Index or Index < 0:
-            printDBG("[IPTVPlayer] ERROR: .hostdvhk.IPTVHost.getFullThread there is no item with index: %d, self.CURRENT_TAB.len: %d" % (Index, len(self.CURRENT_TAB)))
+            printDBG("[BoardsClient] ERROR: .hostxunil.IPTVHost.getFullThread there is no item with index: %d, self.CURRENT_TAB.len: %d" % (Index, len(self.CURRENT_TAB)))
             return ""
         else:
-            printDBG('[IPTVPlayer] zwroc Thread "' + self.CURRENT_TAB[Index]['Name'] + '" url=' + self.CURRENT_TAB[Index]['catURL'])
+            printDBG('[BoardsClient] zwroc Thread "' + self.CURRENT_TAB[Index]['Name'] + '" url=' + self.CURRENT_TAB[Index]['catURL'])
             self.WebPage = GetWebPage(self.mainurl,self.CURRENT_TAB[Index]['catURL'] + self.threadLastPage,self.username,self.password)
             return vb_GetFullThread(self.WebPage) , self.mainurl, self.CURRENT_TAB[Index]['catURL']
             
     def getListForItem(self, Index = 0, refresh = 0, selItem = None):
-        print "[IPTVPlayer] hostdvhk.IPTVHost.getListForItem index: %d" % Index
+        print "[BoardsClient] hostxunil.IPTVHost.getListForItem index: %d" % Index
 
         if len(self.CURRENT_TAB) <= Index or Index < 0:
-            printDBG("[IPTVPlayer] ERROR: .hostdvhk.IPTVHost.getListForItem there is no item with index: %d, TREE_TAB.len: %d" % (Index, len(self.TREE_TAB)))
+            printDBG("[BoardsClient] ERROR: .hostxunil.IPTVHost.getListForItem there is no item with index: %d, TREE_TAB.len: %d" % (Index, len(self.TREE_TAB)))
             return RetHost(RetHost.ERROR, value = [])
         else:
-            printDBG("[IPTVPlayer] zwroc kategorie " + self.CURRENT_TAB[Index]['Name'] + " id=" + str(self.CURRENT_TAB[Index]['catURL']) + ' parrentID=' + str(self.CURRENT_TAB[Index]['ParentID']))
+            printDBG("[BoardsClient] zwroc kategorie " + self.CURRENT_TAB[Index]['Name'] + " id=" + str(self.CURRENT_TAB[Index]['catURL']) + ' parrentID=' + str(self.CURRENT_TAB[Index]['ParentID']))
             self.currentLevel = Index
             self.currIndex = Index
             printDBG("Aktualny poziom:" +  str(self.CURRENT_TAB[Index]['ForumLevel']))
