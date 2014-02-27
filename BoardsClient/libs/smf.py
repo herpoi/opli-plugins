@@ -50,7 +50,7 @@ def GetFullThread(WebPage = -1):
     WebPage = WebPage.replace('<hr class=','\nHrClass=') #kazdy div w jednej linii
     #wywalenie smieci
     WebPage = WebPage.replace('  ',' ').replace('\t\t\t\t','\t').replace('\t\t\t','\t').replace('\t\t','\t')
-    WebPage = re.sub('DivClass=="keyinfo">.+?$','',WebPage)
+    WebPage = re.sub('DivClass=="keyinfo">','',WebPage)
     printDBG(WebPage)
     #zamiana emotikon na standardowe
     WebPage = WebPage.replace('<img src="images/smilies/newtongue.gif" border="0" alt="" title="Stick Out Tongue" class="inlineimg" />',':P')
