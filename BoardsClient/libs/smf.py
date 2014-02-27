@@ -15,10 +15,10 @@ except:
     def printDBG( DBGtxt ):
         global ClearDBGfile, outsidePLI
         if ClearDBGfile == True:
-            f = open('/tmp/iptv.dbg', 'w')
+            f = open('/tmp/BoardsReader.dbg', 'w')
             ClearDBGfile = False
         else:
-            f = open('/tmp/iptv.dbg', 'a')
+            f = open('/tmp/BoardsReader.dbg', 'a')
         f.write(DBGtxt)
         f.close
         if outsidePLI == True and len(DBGtxt) < 800:
@@ -227,8 +227,8 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     if not vdir.startswith('/') and not url.endswith('/'):
         vdir = '/' + vdir
     forumurl = url + vdir
-    #print loginurl
-    #print forumurl
+    printDBG('loginurl:' + loginurl)
+    printDBG('forumurl:' + forumurl)
     md5 = hashlib.md5(passwd);md5 = md5.hexdigest()
     print md5
     # Options for request
@@ -265,11 +265,11 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     #print kodowanie
     WebPage = response.read().decode(WebPageCharSet)
     WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ')
-    print WebPage
     #poprawka smieci po kodowaniu html-a
-    if 'login.php?do=logout' in WebPage:
-        printDBG('GetWebPage:Zalogowany do dvhk\n')
+    printDBG('##### WebPage ##### \n' + WebPage) 
+    if 'id="button_logout"' in WebPage:
+        printDBG('GetWebPage:Zalogowany do xunil\n')
         return WebPage
     else:
-        printDBG('GetWebPage:Blad logowania do dvhk\n')
+        printDBG('GetWebPage:Blad logowania do xunil\n')
         return -1
