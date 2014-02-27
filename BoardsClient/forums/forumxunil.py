@@ -112,7 +112,7 @@ class MyHost(IHost):
             if len(self.TREE_TAB) == 0:
                 for forum in self.Lista_Forums:
                     if str(forum['ID']) not in self.BlockedIDs.split(','):
-                        self.TREE_TAB.append({'Name': forum['NAME'], 'Desc': self.forumurl + str(forum['ID']), 'IMG': '', 'catURL':forum['ID'], 'CatLIST': [], 'ForumLevel': forum['LEVEL'], 'ParentID': forum['ParenID'] })
+                        self.TREE_TAB.append({'Name': forum['NAME'], 'Desc': self.forumurl + str(forum['ID']) + '.0', 'IMG': '', 'catURL':forum['ID'], 'CatLIST': [], 'ForumLevel': forum['LEVEL'], 'ParentID': forum['ParenID'] })
         else:
             self.TREE_TAB.append({'Name': str(_('Error logging to xunil forum!!!')), 'Desc': str(_('Check forum settings. ;)')), 'IMG': '', 'catURL':'', 'CatLIST': [], 'ForumLevel': 0, 'ParentID': 0 })
         #print self.TREE_TAB
@@ -156,8 +156,8 @@ class MyHost(IHost):
             #Cat_URL = self.mainurl
             self.Lista_Threads = GetThreadsList(self.StartWebPage)
         else:
-            printDBG("ListTREETOHostList:" + self.mainurl + self.forumurl + str(Cat_URL))
-            self.WebPage = GetForumContent(GetWebPage(self.mainurl,self.forumurl + str(Cat_URL),self.username,self.password))
+            printDBG("ListTREETOHostList:" + self.mainurl + self.forumurl + str(Cat_URL) + '.0')
+            self.WebPage = GetForumContent(GetWebPage(self.mainurl,self.forumurl + str(Cat_URL) + '.0',self.username,self.password))
             self.Lista_Threads = GetThreadsList(self.WebPage)
 
         #i wypelnijmy liste postami

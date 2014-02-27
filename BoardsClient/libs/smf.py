@@ -171,6 +171,13 @@ def GetForumsList(WebPage = -1):
         if forumName != '' and forumID not in UsedIDs and forumID not in BlockedIDs and parentID not in BlockedIDs:
             Forums.append({'ID': forumID,'LEVEL': forumlevel,'NAME': forumName, 'ParenID': parentID})
             UsedIDs.append(forumID)
+    for forum in Forums
+        Txt2Search = '<tr id="board_' + str(forum['ID']) + "_children"
+        if WebPage.find(Txt2Search) > 0: 
+            SubPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
+            SubPage = SubPage[:SubPage.find('</td>')]
+            printDBG('\n##### SubPage ##### \n' + SubPage.encode('utf-8'))
+        
     return Forums
 # mniej danych do parsowania = szybciej dzialajacy skrypt
 def GetForumContent(WebPage = -1):
