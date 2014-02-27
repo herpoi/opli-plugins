@@ -61,6 +61,7 @@ def GetFullThread(WebPage = -1):
     WebPage = re.sub('DivClass=="smalltext modified".*','',WebPage)
     WebPage = re.sub('DivClass=="messageicon">.*','',WebPage)
     WebPage = re.sub('DivClass=="poster">.*title=.*">','DivClass=Poster=',WebPage)
+    WebPage = re.sub('DivClass=="smalltext">.*<\/strong>">','Dnia=',WebPage)
 
     WebPage = WebPage.replace('\r','').replace('\n','').replace('DivClass=','\nDivClass=') #wszystko w jednej linii
     printDBG(WebPage)
@@ -77,7 +78,7 @@ def GetFullThread(WebPage = -1):
     WebPage = re.sub('\[[/]*SPOILER\]','',WebPage)
     WebPage = WebPage.replace('</font>','')
     WebPage = WebPage.replace('border="0" alt="" onload="NcodeImageResizer.createOn(this);"','')
-    FullThread = re.findall('<!-- status icon and date -->(.+?)<!-- / status icon and date -->.+?<a class="bigusername" href="member.php(.+?)</span></a>\t<script type="text/javascript">.+?<!-- icon and title -->(.+?)<!-- / icon and title -->\t<!-- message -->(.+?)<!-- / message -->', WebPage)
+    FullThread = re.findall('DivClass=Poster=(.+?)</a> / status icon and date -->.+?<a class="bigusername" href="member.php(.+?)</span></a>\t<script type="text/javascript">.+?<!-- icon and title -->(.+?)<!-- / icon and title -->\t<!-- message -->(.+?)<!-- / message -->', WebPage)
     
     for Post in FullThread:
         DataPostu  = str(Post[0][Post[0].find('</a>')+4:].replace('\t','').replace('<a name="newpost"></a>',''))
