@@ -138,7 +138,7 @@ def GetThreadsList(WebPage = -1 ):
     for thread in ThreadsList:
         #print thread
         threadID = int(thread[0])
-        threadTITLE = "HD Clone > Graterlia OpenPLi / OS 2.0.0 RC1" #% thread[1]
+        threadTITLE = thread[1].encode('ascii', error='replace')
         threadICON = thread[2]
         threadDESCR = ''
         printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
@@ -301,6 +301,7 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php', uname = '', passwd =
     # Check
     response = opener.open(forumurl)
     WebPageCharSet = response.headers.getparam('charset')
+    printDBG('\nWebPageCharSet:' + WebPageCharSet + '\n')
     #print kodowanie
     WebPage = response.read().decode(WebPageCharSet)
     WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ')
