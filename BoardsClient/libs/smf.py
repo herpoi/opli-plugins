@@ -132,13 +132,13 @@ def GetThreadsList(WebPage = -1 ):
     #printDBG('\n########################\n' + WebPage.encode('utf-8') +'\n\n')
     #for thread in re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?) title="(.+?)">[ \t]+?<div>.+?bold">(.+?)</a>', WebPage.encode('utf-8')):
     #id, title, 
-    ThreadsList = re.findall('ToPiC=([0-9]+?).0">(.+?)</a>.+?<img src=(.+?).gif"', WebPage)
+    ThreadsList = re.findall('ToPiC=([0-9]+?).0">(.+?)</a>.+?<img src=.+?/(.+?).gif"', WebPage)
     for thread in ThreadsList:
         print thread
         threadID = int(thread[0])
         threadTITLE =  thread[1]
         threadICON = thread[2] + ".gif"
-        threadDESCR = ''
+        threadDESCR = 'aqq'
         printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
         Threads.append({'threadID': threadID,'threadICON': threadICON,'threadTITLE': threadTITLE, 'threadDESCR': threadDESCR})
     print Threads
