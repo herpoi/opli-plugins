@@ -701,7 +701,6 @@ class BoardReaderWidget(Screen):
             printDBG( "++++++++++++++++++++++ callbackRefreshXML ret.status = %s" % ret.status )
 
         self.currList = ret.value
-        print self.currList
         self["list"].setList([ (x,) for x in self.currList])
         
         
