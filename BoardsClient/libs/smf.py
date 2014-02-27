@@ -195,8 +195,10 @@ def GetForumContent(WebPage = -1):
 def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php', uname = '', passwd = '' ):
     global WebPageLastTime
     CurTime = time.time()
-    if WebPageLastTime > CurTime - 2:
-        time.sleep(WebPageLastTime - CurTime)
+    try:
+        if WebPageLastTime > CurTime - 2:
+            time.sleep(WebPageLastTime - CurTime)
+    except: pass
     if uname == '' and passwd == '':
         printDBG("GetWebPage szukam uname i passwd\n")
         try:
