@@ -136,7 +136,8 @@ def GetThreadsList(WebPage = -1 ):
    
 def GetForumsList(WebPage = -1):
     if WebPage == -1:
-        WebPage = GetDVHKforumContent()
+        WebPage = GetForumContent()
+        printDBG('\n##### WebPage ##### \n' + WebPage.encode('utf-8')) 
     if WebPage == -1:
         printDBG("Brak WebPage, koniec\n")
         return -1
@@ -170,20 +171,17 @@ def GetForumsList(WebPage = -1):
 # mniej danych do parsowania = szybciej dzialajacy skrypt
 def GetForumContent(WebPage = -1):
     if WebPage == -1:
-        printDBG("GetDVHKforumContent Pobieram WebPage\n")
+        printDBG("GetForumContent Pobieram WebPage\n")
         WebPage = GetWebPage()
     if WebPage == -1:
         printDBG("Brak WebPage, koniec\n")
         return -1
     #krok 1 - obcinamy gore strony
-    Txt2Search = '<!-- / nav buttons bar -->'
-    if WebPage.find(Txt2Search) > 0:
-        WebPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
-    Txt2Search = '<!-- main -->'
+    Txt2Search = '<div id="recent" class="main_content">'
     if WebPage.find(Txt2Search) > 0:
         WebPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
     #krok 2 - obcinamy dol strony
-    Txt2Search = '<!-- / close content container -->'
+    Txt2Search = '<div class="pagesection" id="readbuttons">'
     if WebPage.find(Txt2Search) > 0:
         WebPage = WebPage[:WebPage.find(Txt2Search)]
     return WebPage
@@ -227,10 +225,9 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     if not vdir.startswith('/') and not url.endswith('/'):
         vdir = '/' + vdir
     forumurl = url + vdir
-    printDBG('loginurl:' + loginurl)
-    printDBG('forumurl:' + forumurl)
+    printDBG('loginurl:' + loginurl + '\n')
+    printDBG('forumurl:' + forumurl + '\n')
     md5 = hashlib.md5(passwd);md5 = md5.hexdigest()
-    print md5
     # Options for request
     opts = {
     'user': uname, 
@@ -266,10 +263,10 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     WebPage = response.read().decode(WebPageCharSet)
     WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ')
     #poprawka smieci po kodowaniu html-a
-    printDBG('##### WebPage ##### \n' + WebPage.encode('utf-8')) 
+    #printDBG('\n##### WebPage ##### \n' + WebPage.encode('utf-8')) 
     if 'id="button_logout"' in WebPage:
-        printDBG('GetWebPage:Zalogowany do xunil\n')
+        printDBG('\nGetWebPage:Zalogowany do xunil :)\n')
         return WebPage
     else:
-        printDBG('GetWebPage:Blad logowania do xunil\n')
+        printDBG('\nGetWebPage:Blad logowania do xunil :(\n')
         return -1
