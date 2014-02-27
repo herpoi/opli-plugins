@@ -5,6 +5,7 @@ import urllib, urllib2, cookielib, hashlib, time, re
 global WebPageCharSet
 global ClearDBGfile
 global outsidePLI
+global WebPageLastTime
 ClearDBGfile = True
 
 try:
@@ -192,6 +193,10 @@ def GetForumContent(WebPage = -1):
     return WebPage
 
 def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php', uname = '', passwd = '' ):
+    global WebPageLastTime
+    CurTime = time.time()
+    if WebPageLastTime > CurTime - 2:
+        time.sleep(WebPageLastTime - CurTime)
     if uname == '' and passwd == '':
         printDBG("GetWebPage szukam uname i passwd\n")
         try:
@@ -269,6 +274,7 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php', uname = '', passwd =
     WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ')
     #poprawka smieci po kodowaniu html-a
     #printDBG('\n##### WebPage ##### \n' + WebPage.encode('utf-8')) 
+    WebPageLastTime = time.time()
     if 'id="button_logout"' in WebPage:
         printDBG('\nGetWebPage:Zalogowany do xunil :)\n')
         return WebPage
