@@ -121,7 +121,7 @@ def GetThreadsList(WebPage = -1 ):
     WebPage = WebPage.replace('\r','').replace('\n','').replace('<span id="msg_','\nthreadID=') #kazdy post w jednej linii
     WebPage = WebPage.replace('href="http://forum.xunil.pl/index.php?topic=','ToPiC=')
     WebPage = WebPage.replace('href="http://forum.xunil.pl/index.php?topic=','ToPiC=')
-    #WebPage = WebPage.replace('<img src="disturbed/statusicon/','threadICON=')
+    WebPage = WebPage.replace('<img src="http://forum.xunil.pl/Themes/default/images/','threadICON=')
     #WebPage = re.sub('<td class="alt2" title=".+?','',WebPage.encode('utf-8'))
     #WebPage = re.sub('<div>.*<a href="showthread.php.*thread_title_[0-9]*" style="font-weight:bold">','\tthreadTITLE=',WebPage)#search,nowe posty
     #WebPage = re.sub('<div>.*<a href="showthread.php.*thread_title_[0-9]*">','\tthreadTITLE=',WebPage)#lista na forum
@@ -132,7 +132,7 @@ def GetThreadsList(WebPage = -1 ):
     #printDBG('\n########################\n' + WebPage.encode('utf-8') +'\n\n')
     #for thread in re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?) title="(.+?)">[ \t]+?<div>.+?bold">(.+?)</a>', WebPage.encode('utf-8')):
     #id, title, 
-    ThreadsList = re.findall('ToPiC=([0-9]+?).0">(.+?)</a>.+?<img src=.+?/(.+?).gif"', WebPage)
+    ThreadsList = re.findall('ToPiC=([0-9]+?).0">(.+?)</a>.+?threadICON=(.+?).gif"', WebPage)
     for thread in ThreadsList:
         #print thread
         threadID = int(thread[0])
