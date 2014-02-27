@@ -41,6 +41,7 @@ def GetFullThread(WebPage = -1):
         PostsInThread = WebPage[WebPage.find('<title>')+len('<title>'):WebPage.find('</title>')] + '\n\n'
         
     printDBG("Tytul:" + PostsInThread)
+    printDBG(WebPage)
     WebPage = WebPage[WebPage.find('<td class="thead" style="font-weight:normal" >'):]
     WebPage = WebPage.replace('\r','').replace('\n','').replace('<td class="thead" style="font-weight:normal" >','\nPostBegin=') #kazdy post w jednej linii
     WebPage = WebPage.replace('<div class="smallfont">','')
