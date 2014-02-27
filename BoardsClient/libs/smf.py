@@ -151,8 +151,9 @@ def GetForumsList(WebPage = -1):
     level_1_ID = 0
     level_2_ID = 0
     parentID = 0
-    for forum in re.findall('<option value="([0-9]+?)".+?class="fjdpth([0123])".+?>(.+?)</option>', WebPage.encode('utf-8'), re.DOTALL):
-        forumName = forum[2].strip()
+    for forum in re.findall('name="b([0-9]+?)">(.+?)</a>', WebPage.encode('utf-8'), re.DOTALL):
+        print forum
+        forumName = forum[1].strip()
         forumID = int(forum[0])
         forumlevel = int(forum[1])
         if forumlevel == 0:
@@ -176,8 +177,12 @@ def GetForumContent(WebPage = -1):
     if WebPage == -1:
         printDBG("Brak WebPage, koniec\n")
         return -1
-    #krok 1 - obcinamy gore strony
+    #krok 1.1 - obcinamy gore strony dla newposts
     Txt2Search = '<div id="recent" class="main_content">'
+    if WebPage.find(Txt2Search) > 0:
+        WebPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
+    #krok 1.2 - obcinamy gore strony dla index.php
+    Txt2Search = '<div id="main_content_section">'
     if WebPage.find(Txt2Search) > 0:
         WebPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
     #krok 2 - obcinamy dol strony
