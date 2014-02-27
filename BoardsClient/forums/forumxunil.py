@@ -108,7 +108,7 @@ class MyHost(IHost):
             self.StartWebPage = GetForumContent(GetWebPage(self.mainurl,self.dailyURL,self.username,self.password))
         if self.StartWebPage != -1:
             if len(self.Lista_Forums) == 0:
-                self.Lista_Forums = GetForumsList() #bez podania kontentu strony, pobierzemy od nowa index
+                self.Lista_Forums = GetForumsList(GetWebPage(self.mainurl,"/index.php",self.username,self.password))
             if len(self.TREE_TAB) == 0:
                 for forum in self.Lista_Forums:
                     if str(forum['ID']) not in self.BlockedIDs.split(','):
