@@ -42,7 +42,12 @@ def GetFullThread(WebPage = -1):
         
     printDBG("Tytul:" + PostsInThread)
     WebPage = WebPage[WebPage.find('<div id="main_content_section">'):]
-    #WebPage = WebPage.replace('\r','').replace('\n','').replace('<td class="thead" style="font-weight:normal" >','\nPostBegin=') #kazdy post w jednej linii
+    WebPage = WebPage[WebPage.find('<div id="forumposts">'):]
+    WebPage = WebPage.replace('\r','').replace('\n','') #wszystko w jednej linii
+    WebPage = WebPage.replace('<div class','\nDivClass=') #kazdy div w jednej linii
+    WebPage = WebPage.replace('<ul class=','\nUlClass=') #kazdy div w jednej linii
+    WebPage = WebPage.replace('<span class=','\nSpanClass=') #kazdy div w jednej linii
+    WebPage = WebPage.replace('<hr class=','\nHrClass=') #kazdy div w jednej linii
     #WebPage = WebPage.replace('<div class="smallfont">','')
     #WebPage = WebPage.replace('<img src="images/ranks/star-blue.png"','')
     #WebPage = WebPage.replace('<img src="images/ranks/star-gold.png"','')
