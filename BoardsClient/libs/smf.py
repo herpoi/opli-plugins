@@ -108,10 +108,10 @@ def GetThreadsList(WebPage = -1 ):
     Threads = []
     if WebPage == -1:
         printDBG("GetThreadsList Pobieram WebPage\n")
-        WebPage = GetDVHKforumContent()
+        WebPage = GetDVHKforumContent( vdir = '/index.php?board=56.0' )
     if WebPage == -1:
         print "GetThreadsList Brak WebPage, koniec"
-        Threads.append({'threadID': 0,'threadICON': '','threadTITLE': str('Błąd logowania do DVHK!!!'), 'threadDESCR': str('Błąd logowania do DVHK!!!')})
+        Threads.append({'threadID': 0,'threadICON': '','threadTITLE': str('Błąd logowania do xunil!!!'), 'threadDESCR': str('Błąd logowania do xunil!!!')})
         return Threads
     WebPage = WebPage[:WebPage.find('<td class="tfoot"')] # wywalenie stopki
     WebPage = WebPage[WebPage.find('<td class="alt1" id="td_threadstatusicon_'):] #wywalenie tego co zostalo z naglowka <td class="alt1" id="td_threadstatusicon_
@@ -155,7 +155,7 @@ def GetForumsList(WebPage = -1):
     level_2_ID = 0
     parentID = 0
     for forum in re.findall('name="b([0-9]+?)">(.+?)</a>', WebPage.encode('utf-8'), re.DOTALL):
-        print forum
+        #print forum
         forumName = forum[1].strip()
         forumID = int(forum[0])
         forumlevel = 0
@@ -179,7 +179,7 @@ def GetForumsList(WebPage = -1):
             SubPage = SubPage[:SubPage.find('</td>')]
             printDBG('\n##### SubPage ##### \n' + SubPage.encode('utf-8'))
             for subforum in re.findall('board=([0-9]+?).0".+?">(.+?)</a>', SubPage.encode('utf-8'), re.DOTALL):
-                print subforum
+                #print subforum
                 forumID = int(subforum[0])
                 forumlevel = forum['LEVEL'] + 1
                 parentID = forum['ID']
@@ -190,6 +190,7 @@ def GetForumsList(WebPage = -1):
                 
     return Forums
 # mniej danych do parsowania = szybciej dzialajacy skrypt
+
 def GetForumContent(WebPage = -1):
     if WebPage == -1:
         printDBG("GetForumContent Pobieram WebPage\n")
