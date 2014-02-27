@@ -137,6 +137,7 @@ def GetThreadsList(WebPage = -1 ):
         threadTITLE =  thread[3]
         printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
         Threads.append({'threadID': threadID,'threadICON': threadICON,'threadTITLE': threadTITLE, 'threadDESCR': threadDESCR})
+    print Threads
     return Threads
    
 def GetForumsList(WebPage = -1):
