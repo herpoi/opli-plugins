@@ -57,7 +57,10 @@ def GetFullThread(WebPage = -1):
     WebPage = re.sub('DivClass=="post_wrapper">.*','',WebPage)
     WebPage = re.sub('DivClass=="postarea">.*','',WebPage)
     WebPage = re.sub('ivClass=="flow_hidden">.*','',WebPage)
-    WebPage = re.sub('DivClass=="poster">.*title=.*">','DivClassPoster',WebPage)
+    WebPage = re.sub('DivClass=="moderatorbar">.*','',WebPage)
+    WebPage = re.sub('DivClass=="smalltext modified".*','',WebPage)
+    WebPage = re.sub('DivClass=="messageicon">.*','',WebPage)
+    WebPage = re.sub('DivClass=="poster">.*title=.*">','DivClass=Poster=',WebPage)
 
     WebPage = WebPage.replace('\r','').replace('\n','').replace('DivClass=','\nDivClass=') #wszystko w jednej linii
     printDBG(WebPage)
