@@ -155,7 +155,7 @@ def GetForumsList(WebPage = -1):
         print forum
         forumName = forum[1].strip()
         forumID = int(forum[0])
-        forumlevel = int(forum[1])
+        forumlevel = 0
         if forumlevel == 0:
             level_0_ID = forumID
             parentID = 0
