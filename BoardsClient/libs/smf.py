@@ -178,7 +178,7 @@ def GetForumsList(WebPage = -1):
             SubPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
             SubPage = SubPage[:SubPage.find('</td>')]
             printDBG('\n##### SubPage ##### \n' + SubPage.encode('utf-8'))
-            for subforum in re.findall('index.php\?board=([0-9]+?).0".+?">(.+?)</a>', WebPage.encode('utf-8'), re.DOTALL):
+            for subforum in re.findall('board=([0-9]+?).0".+?">(.+?)</a>', SubPage.encode('utf-8'), re.DOTALL):
                 print subforum
                 forumID = int(subforum[0])
                 forumlevel = forum['LEVEL'] + 1
