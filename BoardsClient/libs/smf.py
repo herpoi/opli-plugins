@@ -108,7 +108,7 @@ def GetThreadsList(WebPage = -1 ):
     Threads = []
     if WebPage == -1:
         printDBG("GetThreadsList Pobieram WebPage\n")
-        WebPage = GetForumContent( url = 'http://forum.xunil.pl',  vdir = '/index.php?board=56.0' )
+        WebPage = GetWebPage( url = 'http://forum.xunil.pl',  vdir = '/index.php?board=56.0' )
     if WebPage == -1:
         print "GetThreadsList Brak WebPage, koniec"
         Threads.append({'threadID': 0,'threadICON': '','threadTITLE': str('Błąd logowania do xunil!!!'), 'threadDESCR': str('Błąd logowania do xunil!!!')})
