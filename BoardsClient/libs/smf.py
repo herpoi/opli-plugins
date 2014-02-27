@@ -117,7 +117,8 @@ def GetThreadsList(WebPage = -1 ):
     WebPage = WebPage[WebPage.find('<div id="main_content_section">'):] #wywalenie naglowka
     #WebPage = WebPage[:WebPage.find('<div class="pagesection">')] # wywalenie stopki
     WebPage = WebPage.replace('\r','').replace('\n','').replace('<span id="msg_','\nthreadID=') #kazdy post w jednej linii
-    #WebPage = WebPage.replace('  ',' ').replace('\t\t\t','\t').replace('\t\t','\t').replace('&quot;','').replace('&#10070;','') #wywalenie smieci
+    WebPage = WebPage.replace('href="http://forum.xunil.pl/index.php?topic=','ToPiC=')
+    WebPage = WebPage.replace('href="http://forum.xunil.pl/index.php?topic=','ToPiC=')
     #WebPage = WebPage.replace('<img src="disturbed/statusicon/','threadICON=')
     #WebPage = re.sub('<td class="alt2" title=".+?','',WebPage.encode('utf-8'))
     #WebPage = re.sub('<div>.*<a href="showthread.php.*thread_title_[0-9]*" style="font-weight:bold">','\tthreadTITLE=',WebPage)#search,nowe posty
