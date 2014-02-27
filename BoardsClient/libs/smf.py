@@ -113,9 +113,9 @@ def GetThreadsList(WebPage = -1 ):
         print "GetThreadsList Brak WebPage, koniec"
         Threads.append({'threadID': 0,'threadICON': '','threadTITLE': str('Błąd logowania do xunil!!!'), 'threadDESCR': str('Błąd logowania do xunil!!!')})
         return Threads
-    printDBG('\n########################\n' + WebPage.encode('utf-8') +'\n\n')
-    WebPage = WebPage[WebPage.find('id="main_content_section">'):] #wywalenie naglowka
-    WebPage = WebPage[:WebPage.find('class="pagesection"')] # wywalenie stopki
+    #printDBG('\n########################\n' + WebPage.encode('utf-8') +'\n\n')
+    WebPage = WebPage[WebPage.find('<div id="main_content_section">'):] #wywalenie naglowka
+    #WebPage = WebPage[:WebPage.find('<div class="pagesection">')] # wywalenie stopki
     WebPage = WebPage.replace('\r','').replace('\n','').replace('<span id="msg_','\nthreadID=') #kazdy post w jednej linii
     #WebPage = WebPage.replace('  ',' ').replace('\t\t\t','\t').replace('\t\t','\t').replace('&quot;','').replace('&#10070;','') #wywalenie smieci
     #WebPage = WebPage.replace('<img src="disturbed/statusicon/','threadICON=')
