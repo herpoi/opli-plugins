@@ -129,14 +129,14 @@ def GetThreadsList(WebPage = -1 ):
     #WebPage = re.sub('</a>	<span class="smallfont" style="white-space:nowrap">','=ENDthreadTITLE',WebPage)#koniec tytulu podfora
     #WebPage = re.sub('.gif.+?title=','\tthreadDESCR=',WebPage)
     #WebPage = re.sub('<img class="inlineimg".+?','',WebPage)
-    printDBG('\n########################\n' + WebPage.encode('utf-8') +'\n\n')
+    #printDBG('\n########################\n' + WebPage.encode('utf-8') +'\n\n')
     #for thread in re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?) title="(.+?)">[ \t]+?<div>.+?bold">(.+?)</a>', WebPage.encode('utf-8')):
     #id, title, 
     ThreadsList = re.findall('ToPiC=([0-9]+?).0">(.+?)</a>.+?<img src=(.+?).gif"', WebPage)
     for thread in ThreadsList:
         print thread
         threadID = int(thread[0])
-        threadTITLE =  thread[1].strip()
+        threadTITLE =  thread[1].strip().encode('utf-8')
         threadICON = thread[2] + "gif"
         threadDESCR = ""
         printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
