@@ -113,6 +113,7 @@ def GetThreadsList(WebPage = -1 ):
         print "GetThreadsList Brak WebPage, koniec"
         Threads.append({'threadID': 0,'threadICON': '','threadTITLE': str('Błąd logowania do xunil!!!'), 'threadDESCR': str('Błąd logowania do xunil!!!')})
         return Threads
+    printDBG('\n########################\n' + WebPage +'\n\n')
     WebPage = WebPage[:WebPage.find('<td class="tfoot"')] # wywalenie stopki
     WebPage = WebPage[WebPage.find('<td class="alt1" id="td_threadstatusicon_'):] #wywalenie tego co zostalo z naglowka <td class="alt1" id="td_threadstatusicon_
     WebPage = WebPage.replace('\r','').replace('\n','').replace('<td class="alt1" id="td_threadstatusicon_','\nthreadID=') #kazdy post w jednej linii
@@ -125,7 +126,7 @@ def GetThreadsList(WebPage = -1 ):
     WebPage = re.sub('</a>	<span class="smallfont" style="white-space:nowrap">','=ENDthreadTITLE',WebPage)#koniec tytulu podfora
     WebPage = re.sub('.gif.+?title=','\tthreadDESCR=',WebPage)
     WebPage = re.sub('<img class="inlineimg".+?','',WebPage)
-    printDBG(WebPage +'\n')
+    printDBG('\n########################\n' + WebPage +'\n\n')
     #for thread in re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?) title="(.+?)">[ \t]+?<div>.+?bold">(.+?)</a>', WebPage.encode('utf-8')):
     ThreadsList = re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?)\tthreadDESCR="(.+?)">[ \t]+?threadTITLE=(.+?)=ENDthreadTITLE', WebPage)
     for thread in ThreadsList:
