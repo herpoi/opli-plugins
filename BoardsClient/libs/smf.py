@@ -266,7 +266,7 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname 
     WebPage = response.read().decode(WebPageCharSet)
     WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ')
     #poprawka smieci po kodowaniu html-a
-    printDBG('##### WebPage ##### \n' + WebPage) 
+    printDBG('##### WebPage ##### \n' + WebPage.encode('utf-8')) 
     if 'id="button_logout"' in WebPage:
         printDBG('GetWebPage:Zalogowany do xunil\n')
         return WebPage
