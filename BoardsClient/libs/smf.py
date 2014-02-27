@@ -107,6 +107,7 @@ def GetFullThread(WebPage = -1):
     return PostsInThread
 
 def GetThreadsList(WebPage = -1 ):
+    global WebPageCharSet
     Threads = []
     if WebPage == -1:
         printDBG("GetThreadsList Pobieram WebPage\n")
@@ -133,13 +134,12 @@ def GetThreadsList(WebPage = -1 ):
     #WebPage = re.sub('<img class="inlineimg".+?','',WebPage)
     #printDBG('\n########################\n' + WebPage.encode('utf-8') +'\n\n')
     #for thread in re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?) title="(.+?)">[ \t]+?<div>.+?bold">(.+?)</a>', WebPage.encode('utf-8')):
-    #id, title, 
     ThreadsList = re.findall('ToPiC=([0-9]+?).0">(.+?)</a>.+?threadICON=(.+?).gif"', WebPage)
     for thread in ThreadsList:
         #print thread
         threadID = int(thread[0])
         threadTITLE = thread[1].encode('ascii', error='replace')
-        threadICON = thread[2]
+        threadICON = thread[2].encode('ascii', error='replace')
         threadDESCR = ''
         printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
         Threads.append({'threadID': threadID,'threadICON': threadICON,'threadTITLE': threadTITLE, 'threadDESCR': threadDESCR})
@@ -304,9 +304,7 @@ def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php', uname = '', passwd =
     printDBG('\nWebPageCharSet:' + WebPageCharSet + '\n')
     #print kodowanie
     WebPage = response.read().decode(WebPageCharSet)
-    WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ')
-    #poprawka smieci po kodowaniu html-a
-    #printDBG('\n##### WebPage ##### \n' + WebPage.encode('utf-8')) 
+    WebPage = WebPage.replace('&quot;','"').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&nbsp;',' ') #poprawka smieci po kodowaniu html-a
     WebPageLastTime = time.time()
     if 'id="button_logout"' in WebPage:
         printDBG('\nGetWebPage:Zalogowany do xunil :)\n')
