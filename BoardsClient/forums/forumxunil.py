@@ -154,10 +154,11 @@ class MyHost(IHost):
         #teraz pobierzmy posty
         if self.TREE_LEVEL == 0:
             #Cat_URL = self.mainurl
+            printDBG('GetThreadsList(self.StartWebPage)')
             self.Lista_Threads = GetThreadsList(self.StartWebPage)
         else:
             printDBG("ListTREETOHostList:" + self.mainurl + self.forumurl + str(Cat_URL) + '.0')
-            self.WebPage = GetForumContent(GetWebPage(self.mainurl,self.forumurl + str(Cat_URL) + '.0',self.username,self.password))
+            self.WebPage = GetWebPage(self.mainurl,self.forumurl + str(Cat_URL) + '.0',self.username,self.password)
             self.Lista_Threads = GetThreadsList(self.WebPage)
 
         #i wypelnijmy liste postami
