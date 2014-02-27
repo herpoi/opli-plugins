@@ -23,7 +23,7 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS, fileExists
 ###################################################
 config.plugins.BoardReader.xunil_login = ConfigText(default = "", fixed_size = False)
 config.plugins.BoardReader.xunil_password = ConfigText(default = "", fixed_size = False)
-config.plugins.BoardReader.xunil_BlockedIDs = ConfigText(default = "7,8,98,31,19,17,103", fixed_size = False)
+config.plugins.BoardReader.xunil_BlockedIDs = ConfigText(default = "36,41,42,50,73,74", fixed_size = False)
 
 def gettytul():
     return _("forum xunil.pl")

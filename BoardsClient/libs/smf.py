@@ -146,7 +146,7 @@ def GetForumsList(WebPage = -1):
         Forums.append({'ID': 0,'LEVEL': 0,'NAME': 'BŁĄD LOGOWANIA!!!', 'ParenID': 0})
         return Forums
     UsedIDs = []
-    BlockedIDs = [97,124,112,35,158]
+    BlockedIDs = [998,999]
     level_0_ID = 0
     level_1_ID = 0
     level_2_ID = 0
