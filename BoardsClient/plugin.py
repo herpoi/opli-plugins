@@ -685,7 +685,7 @@ class BoardReaderWidget(Screen):
     
             
     def callbackGetList(self, ret):
-        printDBG( "callbackGetList" )
+        printDBG( "plugin:callbackGetList" )
         
         global gMainFunctionsQueue
         #the proxy Queue will be used to call function from mainThread
@@ -694,14 +694,14 @@ class BoardReaderWidget(Screen):
         return
 
     def reloadList(self, ret):
-        printDBG( "reloadList" )
+        printDBG( "plugin:reloadList" )
         
         # ToDo: check ret.status if not OK do something :P
         if ret.status != RetHost.OK:
             printDBG( "++++++++++++++++++++++ callbackRefreshXML ret.status = %s" % ret.status )
 
         self.currList = ret.value
-        
+        print self.currList
         self["list"].setList([ (x,) for x in self.currList])
         
         
