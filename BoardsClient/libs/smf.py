@@ -141,7 +141,7 @@ def GetThreadsList(WebPage = -1 ):
         threadTITLE =  str(thread[1].encode('utf-8'))
         threadICON = thread[2]
         threadDESCR = ''
-        printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
+        printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE.encode('utf-8') + '\nthreadDESCR:' + threadDESCR + '\n')
         Threads.append({'threadID': threadID,'threadICON': threadICON,'threadTITLE': threadTITLE, 'threadDESCR': threadDESCR})
     print Threads
     return Threads
