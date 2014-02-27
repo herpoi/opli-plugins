@@ -132,9 +132,10 @@ def GetThreadsList(WebPage = -1 ):
     #id, title, 
     ThreadsList = re.findall('ToPiC=([0-9]+?).0">(.+?)</a>.+?<img src=(.+?).gif"', WebPage)
     for thread in ThreadsList:
+        print thread
         threadID = int(thread[0])
         threadTITLE =  thread[1].split()
-        threadICON = str(thread[2]) + "gif"
+        threadICON = thread[2] + "gif"
         threadDESCR = ""
         printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
         Threads.append({'threadID': threadID,'threadICON': threadICON,'threadTITLE': threadTITLE, 'threadDESCR': threadDESCR})
