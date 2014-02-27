@@ -23,7 +23,9 @@ except:
         f.write(DBGtxt)
         f.close
         if outsidePLI == True and len(DBGtxt) < 800:
-            print DBGtxt.encode('utf-8')
+            try:
+                print DBGtxt.encode('utf-8')
+            except: pass
 
 def GetFullThread(WebPage = -1):
     if WebPage == -1:
