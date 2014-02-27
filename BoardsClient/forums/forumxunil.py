@@ -176,6 +176,7 @@ class MyHost(IHost):
             if item['threadDESCR'].find('http:') > 0 and item['threadDESCR'].find('.jpg') > 0:
                 iconimage = item['threadDESCR'][item['threadDESCR'].find('http:'):item['threadDESCR'].find('.jpg')+4]
                 printDBG("JPG link: " + iconimage)
+            print ("########" + item['threadTITLE'])
             Item = CDisplayListItem(item['threadTITLE'], item['threadDESCR'], curCAT, urlItems, 0, iconimage)
             TheList.append(Item)
             self.CURRENT_TAB.append({'Name': item['threadTITLE'], 'Desc': item['threadDESCR'], 'IMG': iconimage, 'catURL':self.threadurl + str(item['threadID']), 'CatLIST': [], 'ForumLevel': -1, 'ParentID': -1 })
