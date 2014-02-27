@@ -122,6 +122,8 @@ def GetThreadsList(WebPage = -1 ):
     WebPage = WebPage.replace('href="http://forum.xunil.pl/index.php?topic=','ToPiC=')
     WebPage = WebPage.replace('href="http://forum.xunil.pl/index.php?topic=','ToPiC=')
     WebPage = WebPage.replace('<img src="http://forum.xunil.pl/Themes/default/images/','threadICON=')
+    WebPage = WebPage.replace('polish-utf8/','').replace('icons/','')
+    
     #WebPage = re.sub('<td class="alt2" title=".+?','',WebPage.encode('utf-8'))
     #WebPage = re.sub('<div>.*<a href="showthread.php.*thread_title_[0-9]*" style="font-weight:bold">','\tthreadTITLE=',WebPage)#search,nowe posty
     #WebPage = re.sub('<div>.*<a href="showthread.php.*thread_title_[0-9]*">','\tthreadTITLE=',WebPage)#lista na forum
@@ -138,7 +140,7 @@ def GetThreadsList(WebPage = -1 ):
         threadID = int(thread[0])
         threadTITLE =  'title' #thread[1]
         threadICON = thread[2]
-        threadDESCR = 'adescr'
+        threadDESCR = ''
         printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
         Threads.append({'threadID': threadID,'threadICON': threadICON,'threadTITLE': threadTITLE, 'threadDESCR': threadDESCR})
     print Threads
