@@ -42,11 +42,11 @@ def GetFullThread(WebPage = -1):
         
     printDBG("Tytul:" + PostsInThread)
     WebPage = WebPage[WebPage.find('<div id="main_content_section">'):]
-    WebPage = WebPage.replace('\r','').replace('\n','').replace('<td class="thead" style="font-weight:normal" >','\nPostBegin=') #kazdy post w jednej linii
-    WebPage = WebPage.replace('<div class="smallfont">','')
-    WebPage = WebPage.replace('<img src="images/ranks/star-blue.png"','')
-    WebPage = WebPage.replace('<img src="images/ranks/star-gold.png"','')
-    WebPage = WebPage.replace('alt="" border="" />','')
+    #WebPage = WebPage.replace('\r','').replace('\n','').replace('<td class="thead" style="font-weight:normal" >','\nPostBegin=') #kazdy post w jednej linii
+    #WebPage = WebPage.replace('<div class="smallfont">','')
+    #WebPage = WebPage.replace('<img src="images/ranks/star-blue.png"','')
+    #WebPage = WebPage.replace('<img src="images/ranks/star-gold.png"','')
+    #WebPage = WebPage.replace('alt="" border="" />','')
     printDBG(WebPage)
     #zamiana emotikon na standardowe
     WebPage = WebPage.replace('<img src="images/smilies/newtongue.gif" border="0" alt="" title="Stick Out Tongue" class="inlineimg" />',':P')
