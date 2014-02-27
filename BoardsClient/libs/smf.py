@@ -186,7 +186,7 @@ def GetForumContent(WebPage = -1):
         WebPage = WebPage[:WebPage.find(Txt2Search)]
     return WebPage
 
-def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php?action=unread', uname = '', passwd = '' ):
+def GetWebPage(url = 'forum.xunil.pl', vdir = '/index.php', uname = '', passwd = '' ):
     if uname == '' and passwd == '':
         printDBG("GetWebPage szukam uname i passwd\n")
         try:

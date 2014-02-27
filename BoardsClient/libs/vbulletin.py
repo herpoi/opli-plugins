@@ -18,10 +18,10 @@ except:
     def printDBG( DBGtxt ):
         global ClearDBGfile, outsidePLI
         if ClearDBGfile == True:
-            f = open('/tmp/iptv.dbg', 'w')
+            f = open('/tmp/BoardsReader.dbg', 'w')
             ClearDBGfile = False
         else:
-            f = open('/tmp/iptv.dbg', 'a')
+            f = open('/tmp/BoardsReader.dbg', 'a')
         f.write(DBGtxt)
         f.close
         if outsidePLI == True and len(DBGtxt) < 800:

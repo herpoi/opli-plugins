@@ -139,13 +139,13 @@ class MyHost(IHost):
                 self.PARRENT_ID_L1 = 0
                 self.PARRENT_ID_L2 = 0
                 if item['ForumLevel'] == 0:
-                    print '[IPTV] hostdvhk.ListTREETOHostList.Cat_URPoziom 0:' + item['Name']
+                    print '[BoardsClient] hostdvhk.ListTREETOHostList.Cat_URPoziom 0:' + item['Name']
                     Item = CDisplayListItem(item['Name'], item['Desc'], CDisplayListItem.TYPE_CATEGORY)
                     TheList.append(Item)
                     self.CURRENT_TAB.append({'Name': item['Name'], 'Desc': item['catURL'], 'IMG': '', 'catURL':item['catURL'], 'CatLIST': [], 'ForumLevel': item['ForumLevel'], 'ParentID': item['ParentID'] })
             else:
                 if item['ParentID'] == Cat_URL and item['ForumLevel'] == self.TREE_LEVEL:
-                    print '[IPTV] hostdvhk.ListTREETOHostList.Cat_URPoziom %i :' %item['ForumLevel'] + item['Name']
+                    print '[BoardsClient] hostdvhk.ListTREETOHostList.Cat_URPoziom %i :' %item['ForumLevel'] + item['Name']
                     Item = CDisplayListItem(item['Name'], item['Desc'], CDisplayListItem.TYPE_CATEGORY)
                     self.CURRENT_TAB.append({'Name': item['Name'], 'Desc': item['catURL'], 'IMG': '', 'catURL':item['catURL'], 'CatLIST': [], 'ForumLevel': item['ForumLevel'], 'ParentID': item['ParentID'] })
                     TheList.append(Item)
@@ -192,21 +192,21 @@ class MyHost(IHost):
         if Index > len(self.CURRENT_TAB):
             Index = Index - len(self.CURRENT_TAB)
         if len(self.CURRENT_TAB) <= Index or Index < 0:
-            printDBG("[IPTVPlayer] ERROR: .hostdvhk.IPTVHost.getFullThread there is no item with index: %d, self.CURRENT_TAB.len: %d" % (Index, len(self.CURRENT_TAB)))
+            printDBG("[BoardsClient] ERROR: .hostdvhk.BoardsClientHost.getFullThread there is no item with index: %d, self.CURRENT_TAB.len: %d" % (Index, len(self.CURRENT_TAB)))
             return ""
         else:
-            printDBG('[IPTVPlayer] zwroc Thread "' + self.CURRENT_TAB[Index]['Name'] + '" url=' + self.CURRENT_TAB[Index]['catURL'])
+            printDBG('[BoardsClient] zwroc Thread "' + self.CURRENT_TAB[Index]['Name'] + '" url=' + self.CURRENT_TAB[Index]['catURL'])
             self.WebPage = GetWebPage(self.mainurl,self.CURRENT_TAB[Index]['catURL'] + self.threadLastPage,self.username,self.password)
             return vb_GetFullThread(self.WebPage) , self.mainurl, self.CURRENT_TAB[Index]['catURL']
             
     def getListForItem(self, Index = 0, refresh = 0, selItem = None):
-        print "[IPTVPlayer] hostdvhk.IPTVHost.getListForItem index: %d" % Index
+        print "[BoardsClient] hostdvhk.BoardsClientHost.getListForItem index: %d" % Index
 
         if len(self.CURRENT_TAB) <= Index or Index < 0:
-            printDBG("[IPTVPlayer] ERROR: .hostdvhk.IPTVHost.getListForItem there is no item with index: %d, TREE_TAB.len: %d" % (Index, len(self.TREE_TAB)))
+            printDBG("[BoardsClient] ERROR: .hostdvhk.BoardsClientHost.getListForItem there is no item with index: %d, TREE_TAB.len: %d" % (Index, len(self.TREE_TAB)))
             return RetHost(RetHost.ERROR, value = [])
         else:
-            printDBG("[IPTVPlayer] zwroc kategorie " + self.CURRENT_TAB[Index]['Name'] + " id=" + str(self.CURRENT_TAB[Index]['catURL']) + ' parrentID=' + str(self.CURRENT_TAB[Index]['ParentID']))
+            printDBG("[BoardsClient] zwroc kategorie " + self.CURRENT_TAB[Index]['Name'] + " id=" + str(self.CURRENT_TAB[Index]['catURL']) + ' parrentID=' + str(self.CURRENT_TAB[Index]['ParentID']))
             self.currentLevel = Index
             self.currIndex = Index
             printDBG("Aktualny poziom:" +  str(self.CURRENT_TAB[Index]['ForumLevel']))
