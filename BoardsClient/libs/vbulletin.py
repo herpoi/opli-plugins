@@ -127,7 +127,7 @@ def GetThreadsList(WebPage = -1 ):
     WebPage = re.sub('</a>	<span class="smallfont" style="white-space:nowrap">','=ENDthreadTITLE',WebPage)#koniec tytulu podfora
     WebPage = re.sub('.gif.+?title=','\tthreadDESCR=',WebPage)
     WebPage = re.sub('<img class="inlineimg".+?','',WebPage)
-    printDBG(WebPage +'\n')
+    #printDBG(WebPage +'\n')
     #for thread in re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?) title="(.+?)">[ \t]+?<div>.+?bold">(.+?)</a>', WebPage.encode('utf-8')):
     ThreadsList = re.findall('threadID=([0-9]+?)">.+?threadICON=(.+?)\tthreadDESCR="(.+?)">[ \t]+?threadTITLE=(.+?)=ENDthreadTITLE', WebPage)
     for thread in ThreadsList:
@@ -135,7 +135,7 @@ def GetThreadsList(WebPage = -1 ):
         threadICON = thread[1]
         threadDESCR = thread[2]
         threadTITLE =  thread[3]
-        printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
+        #printDBG('threadID:'+ str(threadID) + '\nthreadICON:' + threadICON + '\nthreadTITLE:'+ threadTITLE + '\nthreadDESCR:' + threadDESCR + '\n')
         Threads.append({'threadID': threadID,'threadICON': threadICON,'threadTITLE': threadTITLE, 'threadDESCR': threadDESCR})
     print Threads
     return Threads

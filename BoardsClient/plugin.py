@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-#  IplaPlayer based on SHOUTcast
+#  BoardsClient
 #
 #  $Id$
 #
