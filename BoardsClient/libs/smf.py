@@ -20,7 +20,7 @@ except:
             ClearDBGfile = False
         else:
             f = open('/tmp/BoardsReader.dbg', 'a')
-        f.write(DBGtxt)
+        f.write(DBGtxt.encode('utf-8'))
         f.close
         if outsidePLI == True and len(DBGtxt) < 800:
             try:
