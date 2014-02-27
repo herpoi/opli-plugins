@@ -31,7 +31,7 @@ except:
 
 def GetFullThread(WebPage = -1):
     if WebPage == -1:
-        WebPage = GetWebPage(url = 'http://forum.xunil.pl', vdir = 'index.php?topic=1128.9999')
+        WebPage = GetWebPage(url = 'http://forum.xunil.pl', vdir = '/index.php?topic=1128.9999')
     if WebPage == -1:
         printDBG("Brak WebPage, koniec\n")
         return -1
