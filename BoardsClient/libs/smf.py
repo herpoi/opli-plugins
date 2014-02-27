@@ -48,10 +48,9 @@ def GetFullThread(WebPage = -1):
     WebPage = WebPage.replace('<ul class=','\nUlClass=') #kazdy div w jednej linii
     WebPage = WebPage.replace('<span class=','\nSpanClass=') #kazdy div w jednej linii
     WebPage = WebPage.replace('<hr class=','\nHrClass=') #kazdy div w jednej linii
-    #WebPage = WebPage.replace('<div class="smallfont">','')
-    #WebPage = WebPage.replace('<img src="images/ranks/star-blue.png"','')
-    #WebPage = WebPage.replace('<img src="images/ranks/star-gold.png"','')
-    #WebPage = WebPage.replace('alt="" border="" />','')
+    #wywalenie smieci
+    WebPage = WebPage.replace('  ',' ').replace('\t\t\t\t','\t').replace('\t\t\t','\t').replace('\t\t','\t')
+    WebPage = re.sub('DivClass=="keyinfo">.+?$','',WebPage)
     printDBG(WebPage)
     #zamiana emotikon na standardowe
     WebPage = WebPage.replace('<img src="images/smilies/newtongue.gif" border="0" alt="" title="Stick Out Tongue" class="inlineimg" />',':P')
@@ -60,10 +59,6 @@ def GetFullThread(WebPage = -1):
     WebPage = WebPage.replace('<img src="images/smilies/newblink.gif" border="0" alt="" title="EEK!" class="inlineimg" />',':o')
     WebPage = WebPage.replace('<img src="images/smilies/newsmile.gif" border="0" alt="" title="Smile" class="inlineimg" />',':)')
     WebPage = WebPage.replace('<img src="images/smilies/newsad.gif" border="0" alt="" title="Frown" class="inlineimg" />',':(')
-    #wywalenie smieci
-    WebPage = WebPage.replace('  ',' ').replace('\t\t\t','\t').replace('\t\t','\t')
-    WebPage = re.sub('<font size="[0-9]">','',WebPage)
-    WebPage = re.sub('<font color="[#a-zA-Z0-9]+?">','',WebPage)
     #WebPage = re.sub('<font color="#FF6600">','',WebPage)
     WebPage = re.sub('<[/]*[ibu]>','',WebPage)
     WebPage = re.sub('<[/]*strong>','',WebPage)
