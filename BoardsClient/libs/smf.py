@@ -173,7 +173,8 @@ def GetForumsList(WebPage = -1):
             UsedIDs.append(forumID)
     for forum in Forums:
         Txt2Search = '<tr id="board_' + str(forum['ID']) + "_children"
-        if WebPage.find(Txt2Search) > 0: 
+        if WebPage.find(Txt2Search) > 0:
+            printDBG("Forum " + str(forum['ID']) + "ma subfora")
             SubPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
             SubPage = SubPage[:SubPage.find('</td>')]
             printDBG('\n##### SubPage ##### \n' + SubPage.encode('utf-8'))
