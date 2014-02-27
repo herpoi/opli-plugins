@@ -54,6 +54,11 @@ def GetFullThread(WebPage = -1):
     WebPage = re.sub('HrClass="post_separator".*','',WebPage)
     WebPage = re.sub('SpanClass=".*','',WebPage)
     WebPage = re.sub('UlClass=".*','',WebPage)
+    WebPage = re.sub('DivClass=="post_wrapper">.*','',WebPage)
+    WebPage = re.sub('DivClass=="postarea">.*','',WebPage)
+    WebPage = re.sub('ivClass=="flow_hidden">.*','',WebPage)
+
+    WebPage = WebPage.replace('\r','').replace('\n','').replace('DivClass=','\nDivClass=') #wszystko w jednej linii
     printDBG(WebPage)
     #zamiana emotikon na standardowe
     WebPage = WebPage.replace('<img src="images/smilies/newtongue.gif" border="0" alt="" title="Stick Out Tongue" class="inlineimg" />',':P')
