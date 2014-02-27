@@ -174,11 +174,12 @@ def GetForumsList(WebPage = -1):
     for forum in Forums:
         Txt2Search = '<tr id="board_' + str(forum['ID']) + "_children"
         if WebPage.find(Txt2Search) > 0:
-            printDBG("Forum " + str(forum['ID']) + "ma subfora")
+            printDBG("Forum " + str(forum['ID']) + " ma subfora")
             SubPage = WebPage[WebPage.find(Txt2Search) + len(Txt2Search):]
             SubPage = SubPage[:SubPage.find('</td>')]
             printDBG('\n##### SubPage ##### \n' + SubPage.encode('utf-8'))
             for subforum in re.findall('index.php.board=([0-9]+?).0".+?">(.+?)</a>', WebPage.encode('utf-8'), re.DOTALL):
+                print subforum
                 forumID = int(subforum[0])
                 forumlevel = forum['LEVEL'] + 1
                 parentID = forum['ID']
