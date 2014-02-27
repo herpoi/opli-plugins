@@ -137,7 +137,7 @@ def GetThreadsList(WebPage = -1 ):
 def GetForumsList(WebPage = -1):
     if WebPage == -1:
         WebPage = GetForumContent()
-        printDBG('\n##### WebPage ##### \n' + WebPage.encode('utf-8')) 
+        #printDBG('\n##### WebPage ##### \n' + WebPage.encode('utf-8')) 
     if WebPage == -1:
         printDBG("Brak WebPage, koniec\n")
         return -1
