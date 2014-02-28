@@ -127,12 +127,12 @@ class SelectorWidget(Screen):
         # numbers of items in self.currList
         self.numOfItems = len(self.currList)
         self.IconsSize = int(config.plugins.BoardReader.IconsSize.value) #do ladowania ikon
-        self.MarkerSize = self.IconsSize + 45
+        self.MarkerSize = self.IconsSize
         
         # load icons
         self.pixmapList = []
         for idx in range(0,self.numOfItems):
-            self.pixmapList.append( LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/PlayerSelector/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '%i.png' % self.IconsSize)) )
+            self.pixmapList.append( LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '%i.png' % self.IconsSize)) )
 
         self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/icons/marker%i.png' % self.MarkerSize))
         

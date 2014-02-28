@@ -262,9 +262,7 @@ class SparkWallWidget(Screen):
             return
             
         if self.visible:
-                       
-        self.selectSparkWallChannel()
-        return
+            self.selectSparkWallChannel()
     
     def LeaveThreadView(self):
         pass
