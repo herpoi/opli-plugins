@@ -3,9 +3,9 @@
 ###################################################
 # LOCAL import
 ###################################################
-from asynccall import AsyncMethod
+from libs.asynccall import AsyncMethod
 from libs.crypto.hash.md5Hash import MD5
-from tools import mkdirs as iptvtools_mkdirs, \
+from libs.tools import mkdirs as iptvtools_mkdirs, \
                       checkIconName, \
                       removeAllIconsFromPath, \
                       getModifyDeltaDateInDays, \

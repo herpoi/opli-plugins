@@ -3,7 +3,7 @@
 ###################################################
 # LOCAL import
 ###################################################
-from asynccall import AsyncMethod
+from libs.asynccall import AsyncMethod
 
 ###################################################
 # FOREIGN import
