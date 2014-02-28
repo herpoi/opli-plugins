@@ -97,7 +97,7 @@ class SparkWallWidget(Screen):
             <widget name="titel" position="115,%d" zPosition="1" size="%d,40" font="Regular;18" transparent="1"  backgroundColor="#00000000"/>
             <widget name="station" position="115,%d" zPosition="1" size="%d,40" font="Regular;18" transparent="1"  backgroundColor="#00000000"/>
             <widget name="console" position="165,%d" zPosition="1" size="%d,140" font="Regular;20" transparent="1"  backgroundColor="#00000000"/>
-            <widget name="cover" zPosition="2" position="5,%d" size="122,140" alphatest="blend" />     
+            <!--widget name="cover" zPosition="2" position="5,%d" size="122,140" alphatest="blend" /-->     
             <widget name="playerlogo" zPosition="4" position="%d,20" size="120,40" alphatest="blend" />
             <ePixmap zPosition="4" position="5,%d" size="%d,5" pixmap="%s" transparent="1" />
         </screen>""" %(
@@ -154,10 +154,10 @@ class SparkWallWidget(Screen):
         self["headertext"] = Label()
         self["console"] = Label()
         
-        self["cover"] = Cover()
-        self["cover"].hide()
+        #self["cover"] = Cover()
+        #self["cover"].hide()
         
-        self["playerlogo"] = Cover()
+        #self["playerlogo"] = Cover()
         
         self.showMessageNoFreeSpaceForIcon = False
   
@@ -415,7 +415,7 @@ class SparkWallWidget(Screen):
             
             if type != 'ForVideoLinks' and type != 'ResolveURL':
                 #hide bottom panel
-                self["cover"].hide()
+                #self["cover"].hide()
                 self["console"].setText('')
                 
             if type == 'ForItem' or type == 'ForSearch':
