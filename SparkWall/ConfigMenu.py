@@ -18,7 +18,7 @@ config.plugins.SparkWall.showinMainMenu = ConfigYesNo(default = False)
 config.plugins.SparkWall.AktualizacjaWmenu = ConfigYesNo(default = False)
 config.plugins.SparkWall.debugprint = ConfigSelection(default = "", choices = [("", "no"),("console", "yes, on console"),("debugfile", "yes, in /tmp/debug.log file")]) 
 #icons
-config.plugins.SparkWall.IconsSize = ConfigSelection(default = "100", choices = [("100", "Picon 100x60")("220", "XPicon 220x132")]) 
+config.plugins.SparkWall.IconsSize = ConfigSelection(default = "100",choices=[("100", "Picon 100x60"),("220", "XPicon 220x132")]) 
 config.plugins.SparkWall.numOfRow = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("0", "auto")])
 config.plugins.SparkWall.numOfCol = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("5", "5"),("6", "6"),("7", "7"),("8", "8"),("0", "auto")])
 
