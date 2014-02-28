@@ -39,9 +39,6 @@ class ConfigMenu(Screen, ConfigListScreen):
     def __init__(self, session):
         Screen.__init__(self, session)
         
-        # remember old
-        self.showcoverOld = 
-        self.SciezkaCacheOld = 
         self.onChangedEntry = [ ]
         self.list = [ ]
         ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
@@ -60,7 +57,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         if UpdateAvailable == True:
             try:
                 from _version import version as wersja
-                from libs.tools import GetGITversion as iptvtools_GetGITversion
+                from tools import GetGITversion as iptvtools_GetGITversion
                 self.iptvtools_GetGITversion = iptvtools_GetGITversion()
                 if iptvtools_GetGITversion() == wersja:
                     UpdateAvailable = False
@@ -115,7 +112,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.save()
 
         #aktualizacja
-        from libs.tools import UpdateIPTV_from_GIT as iptvtools_UpdateIPTV_from_GIT, FreeSpace as iptvtools_FreeSpace
+        from tools import UpdateIPTV_from_GIT as iptvtools_UpdateIPTV_from_GIT, FreeSpace as iptvtools_FreeSpace
         WersjaGIT=self.iptvtools_GetGITversion
         msgtxt = "Autors don't take any responsibility for issues with tunners when using this plugin and using it to illegal download of the files"
 

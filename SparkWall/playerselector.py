@@ -13,7 +13,7 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
 from Components.Label import Label
 from Components.config import config
-from libs.tools import printDBG
+from tools import printDBG
 
 try:
     from _version import version as wersja
