@@ -390,10 +390,11 @@ class SparkWallWidget(Screen):
             pass
 
         options = [] 
-        hostsList = '' ### NOTE GetHostsList() # tu nalezy pobrac liste kanalow
-        brokenHostList = []
-        for hostName in hostsList:
-            options.extend(((title, hostName),))
+        #hostsList = '' ### NOTE GetHostsList() # tu nalezy pobrac liste kanalow
+        #brokenHostList = []
+        #for hostName in hostsList:
+        #    options.extend(((title, hostName),))
+        options.extend((("aqq", "qqa"),))
         options.sort()
 
         from playerselector import PlayerSelectorWidget
