@@ -11,7 +11,6 @@ from Components.Label import Label
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigDirectory, ConfigYesNo, Config, ConfigInteger, ConfigSubList, ConfigText, getConfigListEntry, configfile
 from Components.ConfigList import ConfigListScreen
 from tools import printDBG, TranslateTXT as _
-from confighost import ConfigHostMenu
 
 config.plugins.SparkWall = ConfigSubsection()
 config.plugins.SparkWall.showinextensions = ConfigYesNo(default = True)
@@ -85,12 +84,11 @@ class ConfigMenu(Screen, ConfigListScreen):
                     "blue": self.keyVirtualKeyBoard,
                 }, -2)
 
-        self.firstHostIdx = -1
         self.runSetup()
         self.onLayoutFinish.append(self.layoutFinished)
         
     def layoutFinished(self):
-        self.setTitle(_("Boards Client config"))
+        self.setTitle(_("SparkWall config"))
 
     def runSetup(self):
 
@@ -99,11 +97,6 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.list.append(getConfigListEntry(_("Show plugin in main menu?"), config.plugins.SparkWall.showinMainMenu))
         #self.list.append(getConfigListEntry("Wyświetlać aktualizację w głównym menu?", config.plugins.SparkWall.AktualizacjaWmenu))
         self.list.append(getConfigListEntry(_("Enable DEBUG?"), config.plugins.SparkWall.debugprint))
-        
-        self.firstHostIdx = len(self.list)
-        
-        for hostConfItem in  self.listConfigHostsEntries:
-            self.list.append( hostConfItem )
         
         self["config"].list = self.list
         self["config"].setList(self.list)
