@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 #
-#  BoardsClient
-#
-#  $Id$
-#
+#  SparkWall by j00zek, based on IPTV
 # 
 from Plugins.Plugin import PluginDescriptor
+
 from Screens.Screen import Screen
+
 from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Label import Label
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS
-
-#from enigma import iPlayableService, iServiceInformation
-
 from Components.Pixmap import Pixmap
-from enigma import ePicLoad
-import string
-from enigma import getDesktop
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigDirectory, ConfigYesNo, Config, ConfigInteger, ConfigSubList, ConfigText, getConfigListEntry, configfile
-from Screens.MessageBox import MessageBox
 from Components.Sources.StaticText import StaticText
 
-from tools import  printDBG, TranslateTXT as _
+from enigma import ePicLoad, eServiceCenter, eServiceReference, iServiceInformation, getDesktop
+
+from Screens.MessageBox import MessageBox
+
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS
+
+from libs.tools import  printDBG, TranslateTXT as _
+from xml.etree.cElementTree import parse
+import string
+
 try:
     from _version import version as wersja
 except:
@@ -33,7 +33,7 @@ from ConfigMenu import ConfigMenu
 # Wywołanie wtyczki w roznych miejscach
 ####################################################
 def Plugins(**kwargs):
-    list = [PluginDescriptor(name=_("SparkWall"), description=_("Emulates wall option introduced in Spark fw"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
+    list = [PluginDescriptor(name=_("SparkWall"), description=_("Emulates wall option introduced in Spark fw"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="icons/logo.png", fnc=main)] # always show in plugin menu
     list.append(PluginDescriptor(name=_("SparkWall"), description=_("Emulates wall option introduced in Spark fw"), where = PluginDescriptor.WHERE_MENU, fnc=startSparkWallfromMenu))
     if config.plugins.SparkWall.showinextensions.value:
         list.append (PluginDescriptor(name=_("SparkWall"), description=_("Emulates wall option introduced in Spark fw"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
@@ -54,20 +54,20 @@ def mainSetup(session,**kwargs):
 ####################################################
 #                   For IPTV components
 ####################################################
-from asynccall import AsyncMethod
-from MyList import MyListComponent
+from libs.asynccall import AsyncMethod
+from libs.MyList import MyListComponent
 
 
 #####################################################
 #                     For hosts
 #####################################################
 # interface for hosts
-from ihost import IHost, CDisplayListItem, RetHost, CUrlItem
+from libs.ihost import IHost, CDisplayListItem, RetHost, CUrlItem
 ######################################################
 #                   For mainThreadQueue
 ######################################################
 from enigma import eTimer
-from asynccall import CFunctionProxyQueue
+from libs.asynccall import CFunctionProxyQueue
 ######################################################
 gMainFunctionsQueue = None
 
@@ -101,7 +101,7 @@ class SparkWallWidget(Screen):
             <widget name="playerlogo" zPosition="4" position="%d,20" size="120,40" alphatest="blend" />
             <ePixmap zPosition="4" position="5,%d" size="%d,5" pixmap="%s" transparent="1" />
         </screen>""" %(
-            _("BoardsClient v."),
+            _("SparkWall v."),
             wersja, # wersja wtyczki
             sz_w, sz_h, # size
             Plugin_PATH,Plugin_PATH,Plugin_PATH,Plugin_PATH, # icons
@@ -118,15 +118,15 @@ class SparkWallWidget(Screen):
             sz_w - 125, # position logo
             sz_h - 130, # position line bottom
             sz_w / 2, # size line bottom
-            resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/line.png'),
+            resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/icons/line.png'),
             )
    
     def __init__(self, session):
         self.session = session
         Screen.__init__(self, session)
-        self.nagrywanie=False #j00zek
 
         self.CurrentService = self.session.nav.getCurrentlyPlayingServiceReference()
+
         #self.session.nav.stopService()
         self.session.nav.event.append(self.__event)
 
@@ -368,6 +368,22 @@ class SparkWallWidget(Screen):
             self.started = 1
         return
         
+    def getListFromRef(self, ref):
+        list = []
+
+        serviceHandler = eServiceCenter.getInstance()
+        services = serviceHandler.list(ref)
+        bouquets = services and services.getContent("SN", True)
+
+        for bouquet in bouquets:
+            services = serviceHandler.list(eServiceReference(bouquet[0]))
+            channels = services and services.getContent("SN", True)
+            for channel in channels:
+                if not channel[0].startswith("1:64:"): # Ignore marker
+                    list.append((channel[0] , channel[1].replace('\xc2\x86', '').replace('\xc2\x87', '')))
+#options.extend((("aqq", "qqa"),))
+            return list
+
     def selectSparkWallChannel(self):
     
         self.host = None
@@ -377,36 +393,21 @@ class SparkWallWidget(Screen):
         self.categoryList = []
         self.currList = []
         self.currSelectedItemName = ""
-        self.json_installed = False
-        try:
-            import simplejson
-            self.json_installed = True
-        except:
-            pass
-        try:
-            import json as simplejson
-            self.json_installed = True
-        except:
-            pass
 
-        options = [] 
-        #hostsList = '' ### NOTE GetHostsList() # tu nalezy pobrac liste kanalow
-        #brokenHostList = []
-        #for hostName in hostsList:
-        #    options.extend(((title, hostName),))
-        options.extend((("aqq", "qqa"),))
-        options.sort()
+        self.tv_list = self.getListFromRef(eServiceReference('1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 195) || (type == 25) FROM BOUQUET "bouquets.tv" ORDER BY bouquet'))
+        self.radio_list = self.getListFromRef(eServiceReference('1:7:2:0:0:0:0:0:0:0:(type == 2) FROM BOUQUET "bouquets.radio" ORDER BY bouquet'))
 
-        from playerselector import PlayerSelectorWidget
+        from selector import SelectorWidget
 
-        self.session.openWithCallback(self.selectSparkWallChannelCallback, PlayerSelectorWidget, list = options)
+        self.session.openWithCallback(self.selectSparkWallChannelCallback, PlayerSelectorWidget, list = self.tv_list)
         return
     
     def selectSparkWallChannelCallback(self, ret): #tutaj update EPG i ewentualnie innych pierdol
         if ret:               
-            printDBG("Selected host" + ret[1])
+            printDBG("[SparkWall] Selected host" + ret[1])
         else:
-            self.close()
+            printDBG("[SparkWall] Nothing selected")
+        self.close()
         return
 
     def requestListFromHost(self, type, currSelIndex = -1, videoUrl = ''):
