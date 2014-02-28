@@ -43,6 +43,7 @@ def GetFullThread(WebPage = -1):
     printDBG("Tytul:" + PostsInThread)
     WebPage = WebPage[WebPage.find('<div id="main_content_section">'):]
     WebPage = WebPage[WebPage.find('<div id="forumposts">'):]
+    WebPage = WebPage[:WebPage.find('<div class="pagesection">')]
     WebPage = WebPage.replace('\r','').replace('\n','') #wszystko w jednej linii
     WebPage = WebPage.replace('<div class','\nDivClass=') #kazdy div w jednej linii
     WebPage = WebPage.replace('<ul class=','\nUlClass=') #kazdy div w jednej linii
@@ -50,6 +51,7 @@ def GetFullThread(WebPage = -1):
     WebPage = WebPage.replace('<hr class=','\nHrClass=') #kazdy div w jednej linii
     #wywalenie smieci
     WebPage = WebPage.replace('  ',' ').replace('\t\t\t\t','\t').replace('\t\t\t','\t').replace('\t\t','\t')
+    WebPage = re.sub('DivClass=="pagesection">.*','',WebPage) #wywalenie konca strony
     WebPage = re.sub('DivClass=="keyinfo">.*','',WebPage)
     WebPage = re.sub('HrClass="post_separator".*','',WebPage)
     WebPage = re.sub('SpanClass=".*','',WebPage)
@@ -60,40 +62,32 @@ def GetFullThread(WebPage = -1):
     WebPage = re.sub('DivClass=="moderatorbar">.*','',WebPage)
     WebPage = re.sub('DivClass=="smalltext modified".*','',WebPage)
     WebPage = re.sub('DivClass=="messageicon">.*','',WebPage)
+    WebPage = re.sub('DivClass=="windowbg.*','',WebPage)
+    WebPage = re.sub('DivClass=="signature".*','',WebPage)
+    WebPage = re.sub('DivClass=="smalltext reportlinks">.*','',WebPage)
+    WebPage = re.sub('DivClass=="post">.*','',WebPage)
+    WebPage = re.sub('DivClass=="quoteheader">.*','',WebPage)
+    WebPage = re.sub('DivClass=="quotefooter">.*','',WebPage)
     WebPage = re.sub('DivClass=="poster">.*title=.*">','DivClass=Poster=',WebPage)
-    WebPage = re.sub('DivClass=="smalltext">.*<\/strong>">','Dnia=',WebPage)
-
-    WebPage = WebPage.replace('\r','').replace('\n','').replace('DivClass=','\nDivClass=') #wszystko w jednej linii
-    printDBG(WebPage)
+    WebPage = WebPage.replace('\r','').replace('\n','').replace('DivClass=Poster=','ENDofLINE\nNaszPost=Poster=') #wszystko z jednego posta w jednej linii
     #zamiana emotikon na standardowe
     WebPage = WebPage.replace('<img src="images/smilies/newtongue.gif" border="0" alt="" title="Stick Out Tongue" class="inlineimg" />',':P')
-    WebPage = WebPage.replace('<img src="images/smilies/newwink.gif" border="0" alt="" title="Wink" class="inlineimg" />',';)')
-    WebPage = WebPage.replace('<img src="images/smilies/newbiggrin.gif" border="0" alt="" title="Big Grin" class="inlineimg" />',':D')
     WebPage = WebPage.replace('<img src="images/smilies/newblink.gif" border="0" alt="" title="EEK!" class="inlineimg" />',':o')
-    WebPage = WebPage.replace('<img src="images/smilies/newsmile.gif" border="0" alt="" title="Smile" class="inlineimg" />',':)')
-    WebPage = WebPage.replace('<img src="images/smilies/newsad.gif" border="0" alt="" title="Frown" class="inlineimg" />',':(')
-    #WebPage = re.sub('<font color="#FF6600">','',WebPage)
-    WebPage = re.sub('<[/]*[ibu]>','',WebPage)
-    WebPage = re.sub('<[/]*strong>','',WebPage)
-    WebPage = re.sub('\[[/]*SPOILER\]','',WebPage)
-    WebPage = WebPage.replace('</font>','')
-    WebPage = WebPage.replace('border="0" alt="" onload="NcodeImageResizer.createOn(this);"','')
-    FullThread = re.findall('DivClass=Poster=(.+?)</a> / status icon and date -->.+?<a class="bigusername" href="member.php(.+?)</span></a>\t<script type="text/javascript">.+?<!-- icon and title -->(.+?)<!-- / icon and title -->\t<!-- message -->(.+?)<!-- / message -->', WebPage)
-    
-    for Post in FullThread:
-        DataPostu  = str(Post[0][Post[0].find('</a>')+4:].replace('\t','').replace('<a name="newpost"></a>',''))
-        AutorPostu = str(Post[1][Post[1].find('font-weight:'):].split('>')[1])
-        #PodTytulPostu = str(Post[2].encode('utf8'))
-        TekstPostu = str(Post[3].replace('<br />','\n').strip())
-        if TekstPostu[-6:] == '</div>':
-            TekstPostu = TekstPostu[:-6]
+    WebPage = re.sub('<img src=".*wink.gif.*title="Wink" class="smiley" />',';)',WebPage)
+    WebPage = re.sub('<img src=".*cheesy.gif.*title="Cheesy" class="smiley" />','{:-D',WebPage)
+    WebPage = re.sub('<img src=".*smiley.gif.*title="Smiley" class="smiley" />',':)',WebPage)
+    WebPage = re.sub('<img src=".*sad.gif.*title="Sad" class="smiley" />',':(',WebPage)
+
+    for Post in re.findall('NaszPost=Poster=(.+?)</a>.+?<strong>.+?strong>(.+?)&#187;</div>.+?DivClass=="inner".+?id="msg_[0-9]+?">(.+?)ENDofLINE', WebPage):
+        AutorPostu = Post[0]
+        DataPostu  = Post[1]
+        TekstPostu = str(Post[2].replace('<br />','\n').strip())
         #obsluga cytatow
         LicznikCytatow = 0
-        while (TekstPostu.count('<div class="smallfont" style="margin-bottom:2px">Cytat:</div>') > 0):
+        while (TekstPostu.count('DivClass=="topslice_quote">') > 0):
             LicznikCytatow = LicznikCytatow + 1
-            TekstPostu = TekstPostu.replace('<div class="smallfont" style="margin-bottom:2px">Cytat:</div>','Cytat%i:"' % LicznikCytatow,1)
-            TekstPostu = TekstPostu.replace('<table cellpadding="6" cellspacing="0" border="0" width="100%">\t<tr>\t<td class="alt2" style="border:1px inset">\t\t<div>','',1)
-            TekstPostu = TekstPostu.replace('</table></div>','"\n',1)
+            TekstPostu = TekstPostu.replace('DivClass=="topslice_quote">','Cytat%i:"' % LicznikCytatow,1)
+            TekstPostu = TekstPostu.replace('DivClass=="botslice_quote">','"\n',1)
         ######CYTATY!!!!!!!
         #>link do innego postu z cytatu
         TekstPostu = TekstPostu.replace('<img class="inlineimg" src="disturbed/buttons/viewpost.gif" border="0" alt="Zobacz post" />','')
@@ -101,20 +95,23 @@ def GetFullThread(WebPage = -1):
         TekstPostu = TekstPostu.replace('<div style="font-style:italic">','')
         TekstPostu = TekstPostu.replace('<td class="alt2" style="border:1px inset">','')
         TekstPostu = re.sub('<a href="showthread.php\?p=.+?" rel="nofollow"','',TekstPostu)
-        #czyscimy formatowanie
-        TekstPostu = re.sub('"[\t ]*[\t ]','" ',TekstPostu)
-        TekstPostu = re.sub('[\t ]*[\t ]></a>\t</div>','>>\n',TekstPostu)
-        TekstPostu = re.sub('</div>[\t ]*[\t ]</td>[\t ]*[\t ]</tr>[\t ]*[\t ]"',' "',TekstPostu)
-        TekstPostu = re.sub('[\t]*<div id="post_message_[0-9]+?">','',TekstPostu)
-        TekstPostu = re.sub('[\t]*<div style="margin:[0-9]+?px; margin-top:[0-9]+?px; ">','',TekstPostu)
-        TekstPostu = TekstPostu.replace('<table>\t<tr>\t\t\t',' ')
-        TekstPostu = re.sub('<a href="http://.+?[\t ]target="_blank">','',TekstPostu)
-        ######KODy
-        TekstPostu = TekstPostu.replace('<div style="margin:20px; margin-top:5px">\t<div class="smallfont" style="margin-bottom:2px">','@@@')
-        TekstPostu = TekstPostu.replace('</pre></div>','@@@\n')
-        TekstPostu = TekstPostu.replace('</div>\t<pre class="alt2" dir="ltr" style=" margin: 0px;\tpadding: 6px;\tborder: 1px inset;\twidth: 630px;\theight: 66px;\ttext-align: left;\toverflow: auto">','')
-        TekstPostu = re.sub('</div>\t<pre class="alt2" dir="ltr" style=" margin: 0px;\tpadding: [0-9]+?px;\tborder: [0-9]+?px inset;\twidth: [0-9]+?px;\theight: [0-9]+?px;\ttext-align: left;\toverflow: auto">','',TekstPostu)
         #TekstPostu = TekstPostu.replace('','').replace('','').replace('','')
+        #czyscimy formatowanie i smieci
+        TekstPostu = re.sub('<span style=.*color">','',TekstPostu)
+        TekstPostu = re.sub('DivClass=="codeheader">.*class="bbc_code">','Kod:\n#',TekstPostu)
+        TekstPostu = re.sub('</code>','#\n',TekstPostu)
+        TekstPostu = re.sub('<a href=".*clip.gif.*/>','Załączono: ',TekstPostu)
+        TekstPostu = re.sub('"<a href=".*topic=.*class="bbc_standard_quote">','"',TekstPostu)
+        TekstPostu = re.sub('<img src=".*modify_inline.gif.*" />','',TekstPostu)
+        TekstPostu = TekstPostu.replace('</blockquote>','')
+        TekstPostu = re.sub('</div>[\t ]*</div>','',TekstPostu)
+        TekstPostu = re.sub(':"Cytuj<blockquote class="bbc_standard_quote">',':"',TekstPostu)
+
+        TekstPostu = TekstPostu.replace('<strong>','').replace('</strong>','').replace('</a>','').replace('<tt class="bbc_tt">','').replace('</tt>','')
+        TekstPostu = TekstPostu.replace('</span>','').replace('\n\n','\n')
+        TekstPostu = TekstPostu.replace('\t\t\t</div>','').replace('\t\t</div>','').replace('\t</div>','')
+        TekstPostu = TekstPostu.replace('\t\n','\n').replace('\n\n','\n')
+        #sklejamy wszystko do kupy
         PostsInThread = str(PostsInThread) + "\n########## " + DataPostu + ' , ' + AutorPostu + str(' napisał:\n')
         PostsInThread = PostsInThread + TekstPostu.strip() + '\n'
     printDBG(PostsInThread)
