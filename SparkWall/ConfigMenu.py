@@ -10,47 +10,23 @@ from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Label import Label
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigDirectory, ConfigYesNo, Config, ConfigInteger, ConfigSubList, ConfigText, getConfigListEntry, configfile
 from Components.ConfigList import ConfigListScreen
-from libs.tools import removeAllIconsFromPath, printDBG, GetHostsList, IsHostEnabled, TranslateTXT as _
+from tools import printDBG, TranslateTXT as _
 from confighost import ConfigHostMenu
 
-config.plugins.BoardReader = ConfigSubsection()
-config.plugins.BoardReader.showcover = ConfigYesNo(default = True)
-config.plugins.BoardReader.deleteIcons = ConfigSelection(default = "0", choices = [("0", _("always")),("1", _("after day")),("3", _("after 3 days")),("7", _("after week")),("30", _("after month")),("-1", _("never"))]) 
-config.plugins.BoardReader.showinextensions = ConfigYesNo(default = True)
-config.plugins.BoardReader.showinMainMenu = ConfigYesNo(default = False)
-config.plugins.BoardReader.NaszaSciezka = ConfigText(default = "/hdd/movie/", fixed_size = False)
-config.plugins.BoardReader.AktualizacjaWmenu = ConfigYesNo(default = False)
-config.plugins.BoardReader.devHelper = ConfigYesNo(default = False)
-
-config.plugins.BoardReader.SciezkaCache = ConfigText(default = "/tmp/IPTVCache/", fixed_size = False)
-config.plugins.BoardReader.NaszaTMP = ConfigText(default = "/tmp/", fixed_size = False)
-
-config.plugins.BoardReader.debugprint = ConfigSelection(default = "", choices = [("", "no"),("console", "yes, on console"),("debugfile", "yes, in /tmp/iptv.dbg file")]) 
-
+config.plugins.SparkWall = ConfigSubsection()
+config.plugins.SparkWall.showinextensions = ConfigYesNo(default = True)
+config.plugins.SparkWall.showinMainMenu = ConfigYesNo(default = False)
+config.plugins.SparkWall.AktualizacjaWmenu = ConfigYesNo(default = False)
+config.plugins.SparkWall.debugprint = ConfigSelection(default = "", choices = [("", "no"),("console", "yes, on console"),("debugfile", "yes, in /tmp/debug.log file")]) 
 #icons
-config.plugins.BoardReader.IconsSize = ConfigSelection(default = "100", choices = [("135", "135x135"),("120", "120x120"),("100", "100x100")]) 
-config.plugins.BoardReader.numOfRow = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("0", "auto")])
-config.plugins.BoardReader.numOfCol = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("5", "5"),("6", "6"),("7", "7"),("8", "8"),("0", "auto")])
-
-config.plugins.BoardReader.cleanup = ConfigYesNo(default = True)
-
-########################################################
-# Generate list of hosts options for Enabling/Disabling
-########################################################
-gListOfHostsNames = [] 
-gListOfHostsNames = GetHostsList()
-for hostName in gListOfHostsNames:
-    try:
-        printDBG("Set default options for host '%s'" % hostName)
-        # as default all hosts are enabled
-        exec('config.plugins.BoardReader.host' + hostName + ' = ConfigYesNo(default = True)')
-    except:
-        printDBG("Options import for host '%s' EXEPTION" % hostName)
+config.plugins.SparkWall.IconsSize = ConfigSelection(default = "100", choices = [("100", "Picon 100x60")("220", "XPicon 220x132")]) 
+config.plugins.SparkWall.numOfRow = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("0", "auto")])
+config.plugins.SparkWall.numOfCol = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("5", "5"),("6", "6"),("7", "7"),("8", "8"),("0", "auto")])
 
 class ConfigMenu(Screen, ConfigListScreen):
 
     skin = """
-    <screen name="Boards Client config" position="center,center" size="540,440" title="" backgroundColor="#31000000" >
+    <screen name="SparkWall config" position="center,center" size="540,440" title="" backgroundColor="#31000000" >
 
             <widget name="config" position="10,10" size="520,395" zPosition="1" transparent="0" backgroundColor="#31000000" scrollbarMode="showOnDemand" />
             <widget name="key_green" position="0,405" zPosition="2" size="100,35" valign="center" halign="right" font="Regular;22" transparent="1" foregroundColor="green" />
@@ -64,9 +40,8 @@ class ConfigMenu(Screen, ConfigListScreen):
         Screen.__init__(self, session)
         
         # remember old
-        self.showcoverOld = config.plugins.BoardReader.showcover.value
-        self.SciezkaCacheOld = config.plugins.BoardReader.SciezkaCache.value
-
+        self.showcoverOld = 
+        self.SciezkaCacheOld = 
         self.onChangedEntry = [ ]
         self.list = [ ]
         ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
@@ -113,12 +88,6 @@ class ConfigMenu(Screen, ConfigListScreen):
                     "blue": self.keyVirtualKeyBoard,
                 }, -2)
 
-        global gListOfHostsNames
-        # prepar config entries for hosts Enabling/Disabling
-        self.listConfigHostsEntries = []
-        for hostName in gListOfHostsNames:
-            exec( 'self.listConfigHostsEntries.append(getConfigListEntry( "%s" , config.plugins.BoardReader.host' % _("Press OK to set %s options") % hostName + hostName + '))' )
-        
         self.firstHostIdx = -1
         self.runSetup()
         self.onLayoutFinish.append(self.layoutFinished)
@@ -129,18 +98,10 @@ class ConfigMenu(Screen, ConfigListScreen):
     def runSetup(self):
 
         # WYGLAD
-        self.list = [ getConfigListEntry(_("Show icons:"), config.plugins.BoardReader.showcover) ]
-        if config.plugins.BoardReader.showcover.value:
-            self.list.append(getConfigListEntry(_("    Delete icons:"), config.plugins.BoardReader.deleteIcons))
-        self.list.append(getConfigListEntry(_("Cache folder:"), config.plugins.BoardReader.SciezkaCache))
-        self.list.append(getConfigListEntry(_("Temp folder:"), config.plugins.BoardReader.NaszaTMP))
-        
-        self.list.append(getConfigListEntry(_("Show plugin on the Extensions menu?"), config.plugins.BoardReader.showinextensions))
-        self.list.append(getConfigListEntry(_("Show plugin in main menu?"), config.plugins.BoardReader.showinMainMenu))
-        #self.list.append(getConfigListEntry("Wyświetlać aktualizację w głównym menu?", config.plugins.BoardReader.AktualizacjaWmenu))
-        self.list.append(getConfigListEntry(_("Enable DEBUG?"), config.plugins.BoardReader.debugprint))
-        self.list.append(getConfigListEntry(_("Disable secured mode? (error ends with GS)"), config.plugins.BoardReader.devHelper))
-        self.list.append(getConfigListEntry(_("Clean folder during update?"), config.plugins.BoardReader.cleanup))
+        self.list.append(getConfigListEntry(_("Show plugin on the Extensions menu?"), config.plugins.SparkWall.showinextensions))
+        self.list.append(getConfigListEntry(_("Show plugin in main menu?"), config.plugins.SparkWall.showinMainMenu))
+        #self.list.append(getConfigListEntry("Wyświetlać aktualizację w głównym menu?", config.plugins.SparkWall.AktualizacjaWmenu))
+        self.list.append(getConfigListEntry(_("Enable DEBUG?"), config.plugins.SparkWall.debugprint))
         
         self.firstHostIdx = len(self.list)
         
@@ -157,17 +118,14 @@ class ConfigMenu(Screen, ConfigListScreen):
         from libs.tools import UpdateIPTV_from_GIT as iptvtools_UpdateIPTV_from_GIT, FreeSpace as iptvtools_FreeSpace
         WersjaGIT=self.iptvtools_GetGITversion
         msgtxt = "Autors don't take any responsibility for issues with tunners when using this plugin and using it to illegal download of the files"
-        if iptvtools_FreeSpace(config.plugins.BoardReader.NaszaTMP.value,2):
-            StatusUpdate = iptvtools_UpdateIPTV_from_GIT(config.plugins.BoardReader.NaszaTMP.value)
-            if StatusUpdate == "OK":
-                self.session.open(MessageBox, "Restart oPLI po aktualizacji wtyczki do wersji %s...\n Czytałeś już licencję?\nJeśli tak, to wiesz, że\n\n" % WersjaGIT + msgtxt, type = MessageBox.TYPE_INFO, timeout = 5 )
-                from enigma import quitMainloop
-                quitMainloop(3) 
-            else:
-                self.session.open(MessageBox, "Błąd aktualizacji wtyczki, spróbuj ponownie za jakiś czas.\n Status: %s \n\n Dla przypomnienia -\n\n" % StatusUpdate + msgtxt, type = MessageBox.TYPE_INFO, timeout = 10 )
-                return
+
+        StatusUpdate = iptvtools_UpdateIPTV_from_GIT('/tmp')
+        if StatusUpdate == "OK":
+            self.session.open(MessageBox, "Restart oPLI po aktualizacji wtyczki do wersji %s...\n Czytałeś już licencję?\nJeśli tak, to wiesz, że\n\n" % WersjaGIT + msgtxt, type = MessageBox.TYPE_INFO, timeout = 5 )
+            from enigma import quitMainloop
+            quitMainloop(3) 
         else:
-            self.session.open(MessageBox, "Brak wolnego miejsca w katalogu %s" % (config.plugins.BoardReader.NaszaTMP.value), type = MessageBox.TYPE_INFO, timeout = 10 )
+            self.session.open(MessageBox, "Błąd aktualizacji wtyczki, spróbuj ponownie za jakiś czas.\n Status: %s \n\n Dla przypomnienia -\n\n" % StatusUpdate + msgtxt, type = MessageBox.TYPE_INFO, timeout = 10 )
             return
 
     def keySave(self):
@@ -179,30 +137,8 @@ class ConfigMenu(Screen, ConfigListScreen):
             x[1].save()
         configfile.save()
         
-        if self.showcoverOld != config.plugins.BoardReader.showcover.value or \
-           self.SciezkaCacheOld != config.plugins.BoardReader.SciezkaCache.value:
-           # remove files from old path
-           removeAllIconsFromPath(self.SciezkaCacheOld)
-      
     def keyOK(self):
         self.save()
-        
-        if self.firstHostIdx > -1:
-            curIndex = self["config"].getCurrentIndex()
-            if curIndex >= self.firstHostIdx:
-                # calculate index in hosts list
-                idx = curIndex - self.firstHostIdx
-                global gListOfHostsNames
-                if idx < len(gListOfHostsNames):
-                    hostName = gListOfHostsNames[idx]
-                    if IsHostEnabled(hostName):
-                        try:
-                            self.host = __import__('forums.forum' + hostName, globals(), locals(), ['GetConfigList'], -1)
-                            if( len(self.host.GetConfigList()) < 1 ):
-                                printDBG('ConfigMenu host "%s" does not have additiona configs' % hostName)
-                            self.session.open(ConfigHostMenu, hostName = hostName)
-                        except:
-                            printDBG('ConfigMenu host "%s" does not have method GetConfigList' % hostName)
         return
 
     def keyCancel(self):
@@ -211,8 +147,7 @@ class ConfigMenu(Screen, ConfigListScreen):
         self.close()
         
     def changeSubOptions(self):
-        if self["config"].getCurrent()[1] in [config.plugins.BoardReader.showcover]:
-            self.runSetup()
+        return
         
     def keyLeft(self):
         ConfigListScreen.keyLeft(self)

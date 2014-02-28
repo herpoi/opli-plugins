@@ -26,10 +26,10 @@ class PlayerSelectorWidget(Screen):
     def __init__(self, session, list):
         #printDBG("PlayerSelectorWidget length of list: %i" % len(list))
         #printDBG("PlayerSelectorWidget icons size: " + config.plugins.BoardReader.IconsSize.value)
-        if len(list) > 16 and int(config.plugins.BoardReader.IconsSize.value) == 100:
+        if len(list) > 16 and int(config.plugins.SparkWall.IconsSize.value) == 100:
             numOfRow = 4
             numOfCol = 5
-        elif len(list) > 12 and int(config.plugins.BoardReader.IconsSize.value) == 100:
+        elif len(list) > 12 and int(config.plugins.SparkWall.IconsSize.value) == 100:
             numOfRow = 4
             numOfCol = 4
         elif len(list) > 9:
@@ -49,8 +49,8 @@ class PlayerSelectorWidget(Screen):
             numOfCol = 2
         
         try:
-            confNumOfRow = int(config.plugins.BoardReader.numOfRow.value)
-            confNumOfCol = int(config.plugins.BoardReader.numOfCol.value)
+            confNumOfRow = int(config.plugins.SparkWall.numOfRow.value)
+            confNumOfCol = int(config.plugins.SparkWall.numOfCol.value)
             if confNumOfRow > 0: numOfRow = confNumOfRow
             if confNumOfRow > 0: numOfCol = confNumOfCol
         except:

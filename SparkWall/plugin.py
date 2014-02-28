@@ -7,7 +7,6 @@
 # 
 from Plugins.Plugin import PluginDescriptor
 from Screens.Screen import Screen
-from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Label import Label
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
@@ -16,50 +15,36 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
 from Components.Pixmap import Pixmap
 from enigma import ePicLoad
-from Components.ScrollLabel import ScrollLabel
 import string
 from enigma import getDesktop
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigDirectory, ConfigYesNo, Config, ConfigInteger, ConfigSubList, ConfigText, getConfigListEntry, configfile
 from Screens.MessageBox import MessageBox
 from Components.Sources.StaticText import StaticText
-from Screens.ChoiceBox import ChoiceBox
-from Screens.VirtualKeyBoard import VirtualKeyBoard
 
-from Components.Input import Input
-from Screens.InputBox import InputBox 
-from libs.tools import GetGITversion as iptvtools_GetGITversion, \
-                      UpdateIPTV_from_GIT as iptvtools_UpdateIPTV_from_GIT, \
-                      FreeSpace as iptvtools_FreeSpace, \
-                      mkdirs as iptvtools_mkdirs, \
-                      printDBG, GetHostsList, TranslateTXT as _
+from tools import  printDBG, TranslateTXT as _
 try:
     from _version import version as wersja
 except:
     wersja="XX.YY.ZZ"
-from Components.Console import Console #do buforowania w tle
 from time import sleep as time_sleep
 from ConfigMenu import ConfigMenu
-from os import remove as os_remove, path as os_path
 
 ####################################################
 # Wywołanie wtyczki w roznych miejscach
 ####################################################
 def Plugins(**kwargs):
-    list = [PluginDescriptor(name=_("Boards Client"), description=_("Various forums client"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
-    list.append(PluginDescriptor(name=_("Boards Client"), description=_("Various forums client"), where = PluginDescriptor.WHERE_MENU, fnc=startIPTVfromMenu))
-    if config.plugins.BoardReader.showinextensions.value:
-        list.append (PluginDescriptor(name=_("Boards Client"), description=_("Various forums client"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
+    list = [PluginDescriptor(name=_("SparkWall"), description=_("Emulates wall option introduced in Spark fw"), where = [PluginDescriptor.WHERE_PLUGINMENU], icon="logo.png", fnc=main)] # always show in plugin menu
+    list.append(PluginDescriptor(name=_("SparkWall"), description=_("Emulates wall option introduced in Spark fw"), where = PluginDescriptor.WHERE_MENU, fnc=startSparkWallfromMenu))
+    if config.plugins.SparkWall.showinextensions.value:
+        list.append (PluginDescriptor(name=_("SparkWall"), description=_("Emulates wall option introduced in Spark fw"), where = [PluginDescriptor.WHERE_EXTENSIONSMENU], fnc=main))
     return list
 
 ####################################################
 # Konfiguracja wtyczki
 ####################################################
-def startIPTVfromMenu(menuid, **kwargs):
-    #if menuid == "system":
-        #return [(_("Configure Boards Client"), mainSetup, "boardsclient_config", None)]
-    #el
-    if menuid == "mainmenu" and config.plugins.BoardReader.showinMainMenu.value == True:
-        return [(_("Boards Client"), main, "boardsclient_main", None)]
+def startSparkWallfromMenu(menuid, **kwargs):
+    if menuid == "mainmenu" and config.plugins.SparkWall.showinMainMenu.value == True:
+        return [(_("SparkWall"), main, "SparkWall_main", None)]
     else:
         return []
     
@@ -79,10 +64,6 @@ from MyList import MyListComponent
 # interface for hosts
 from ihost import IHost, CDisplayListItem, RetHost, CUrlItem
 ######################################################
-from iconmanager import IconManager
-from cover import Cover
-
-######################################################
 #                   For mainThreadQueue
 ######################################################
 from enigma import eTimer
@@ -91,17 +72,17 @@ from asynccall import CFunctionProxyQueue
 gMainFunctionsQueue = None
 
 def main(session,**kwargs):
-    session.open(BoardReaderWidget)
+    session.open(SparkWallWidget)
 
-class BoardReaderWidget(Screen):
-    Plugin_PATH = resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/')
+class SparkWallWidget(Screen):
+    Plugin_PATH = resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/')
     sz_w = getDesktop(0).size().width() - 190
     sz_h = getDesktop(0).size().height() - 195
-    printDBG("[BoardReader] desktop size %dx%d wersja[%s]\n" % (sz_w+90, sz_h+100, wersja) )
+    printDBG("[SparkWall] desktop size %dx%d wersja[%s]\n" % (sz_w+90, sz_h+100, wersja) )
     if sz_h < 500:
         sz_h += 4
     skin = """
-        <screen name="BoardReaderWidget" position="center,center" title="%s %s" size="%d,%d">
+        <screen name="SparkWallWidget" position="center,center" title="%s %s" size="%d,%d">
          <ePixmap position="5,9" zPosition="4" size="30,30" pixmap="%s/icons/red.png" transparent="1" alphatest="on" />
          <!--ePixmap position="180,9" zPosition="4" size="30,30" pixmap="%s/icons/yellow.png" transparent="1" alphatest="on" /-->
          <!--ePixmap position="385,9" zPosition="4" size="30,30" pixmap="%s/icons/green.png" transparent="1" alphatest="on" /-->
@@ -143,7 +124,6 @@ class BoardReaderWidget(Screen):
     def __init__(self, session):
         self.session = session
         Screen.__init__(self, session)
-        self.BRConsole = Console() #j00zek
         self.nagrywanie=False #j00zek
 
         self.CurrentService = self.session.nav.getCurrentlyPlayingServiceReference()
@@ -180,18 +160,8 @@ class BoardReaderWidget(Screen):
         self["playerlogo"] = Cover()
         
         self.showMessageNoFreeSpaceForIcon = False
-        self.iconManager = None
-        if config.plugins.BoardReader.showcover.value:
-            if not os_path.exists(config.plugins.BoardReader.SciezkaCache.value):
-                iptvtools_mkdirs(config.plugins.BoardReader.SciezkaCache.value)
-            if iptvtools_FreeSpace(config.plugins.BoardReader.SciezkaCache.value,10):
-                self.iconManager = IconManager(self.checkIconCallBack, True)
-            else:
-                self.showMessageNoFreeSpaceForIcon = True
-                self.iconManager = IconManager(self.checkIconCallBack, False)
   
         self.onClose.append(self.__onClose)
-        #self.onLayoutFinish.append(self.selectHost)
         self.onShow.append(self.onStart)
         
         #Defs
@@ -229,9 +199,6 @@ class BoardReaderWidget(Screen):
         gMainFunctionsQueue.clearQueue()
             
         gMainFunctionsQueue.registerFunction(self.reloadList)
-        gMainFunctionsQueue.registerFunction(self.checkIconCallBack)
-        gMainFunctionsQueue.registerFunction(self.updateCover)
-        gMainFunctionsQueue.registerFunction(self.displayIcon)
         
         #main Queue
         self.mainTimer = eTimer()
@@ -256,7 +223,6 @@ class BoardReaderWidget(Screen):
             gMainFunctionsQueue.unregisterAllFunctions()
             gMainFunctionsQueue.clearQueue()
             gMainFunctionsQueue = None
-            self.BRConsole.ePopen('echo 1 > /proc/sys/vm/drop_caches')
         except:
             pass
         return
@@ -287,92 +253,8 @@ class BoardReaderWidget(Screen):
         self.session.open(MessageBox, "Blue button pressed, action TBD", type = MessageBox.TYPE_INFO, timeout = 10 )
         return
 
-        
-    # method called from IconManager when a new icon has been dowlnoaded
-    def checkIconCallBack(self, ret):
-        printDBG("checkIconCallBack")
- 
-        # ret - url for icon wich has been dowlnoaded
-        global gMainFunctionsQueue
-        
-        #the proxy Queue will be used to call function from mainThread
-        gMainFunctionsQueue.addToQueue("displayIcon", ret)
-        return
-        
-        
-    def displayIcon(self, ret = None):
-        # check if displays icon is enabled in options
-        if not config.plugins.BoardReader.showcover.value or None == self.iconManager :
-            return
-            
-        
-        if False == self.changeIcon:
-            return
-        
-        selItem = self.getSelItem()
-        # when ret is != None the method is called from IconManager 
-        # and in this variable the url for icon which was downloaded 
-        # is returned 
-        if ret != None and selItem != None:
-            # if icon for other than selected item has been downloaded 
-            # the displayed icon will not be changed
-            if ret != selItem.iconimage:
-                return
-            
-        # Display icon
-        if selItem and selItem.iconimage != '' and self.iconManager:
-            self["cover"].hide()
-            # check if we have this icon and get the path to this icon on disk
-            iconPath = self.iconManager.getIconPathFromAAueue(selItem.iconimage)
-            printDBG( 'displayIcon -> getIconPathFromAAueue: ' + selItem.iconimage )
-            if iconPath != '':
-                printDBG( 'updateIcon: ' + iconPath )
-                self["cover"].decodeCover(iconPath, self.decodeCoverCallBack, "cover")
-                self.changeIcon = False
-        else:
-            self["cover"].hide()
-        return
-
-            
-    def decodeCoverCallBack(self, ret):
-        printDBG("decodeIconIfNeedeCallBack")
-        
-        global gMainFunctionsQueue
-        #the proxy Queue will be used to call function from mainThread
-        gMainFunctionsQueue.addToQueue("updateCover", ret)
-        
-        return
-            
-    def updateCover(self, retDict):
-        # retDict - return dictionary  {Ident, Pixmap, FileName, Changed}
-        printDBG('updateCover')
-        if retDict:
-            printDBG("updateCover retDict for Ident: %s " % retDict["Ident"])
-            if retDict["Changed"]:
-                self[retDict["Ident"]].updatePixmap(retDict["Pixmap"], retDict["FileName"])
-            else:
-                printDBG("updateCover pixel map not changed")
-                
-            if 'cover' == retDict["Ident"]:
-                #check if we have icon for right item on list
-                selItem = self.getSelItem()
-                if selItem and selItem.iconimage != '':
-                    # check if we have this icon and get the path to this icon on disk
-                    iconPath = self.iconManager.getIconPathFromAAueue(selItem.iconimage)
-                    if iconPath == retDict["FileName"]:
-                        # now we are sure that we have right icon, so let show it
-                        self[retDict["Ident"]].show()
-            else:
-                self[retDict["Ident"]].show()
-        else:
-            printDBG("updateCover retDict empty")
-            
-        return
-
-                
     def changeBottomPanel(self):
         self.changeIcon = True
-        self.displayIcon()
         
         selItem = self.getSelItem()
         if selItem and selItem.description != '':
@@ -383,11 +265,9 @@ class BoardReaderWidget(Screen):
             self["console"].setText('')
             
         return
-                
     
     def onSelectionChanged(self):
         self.changeBottomPanel()
-        
         return
 
  
@@ -410,7 +290,7 @@ class BoardReaderWidget(Screen):
             else:
                 #There is no prev categories, so exit
                 #self.close()
-                self.selectHost()
+                self.selectSparkWallChannel()
         else:
             self.showWindow()
             
@@ -455,8 +335,6 @@ class BoardReaderWidget(Screen):
                         self.session.openWithCallback(self.LeaveThreadView, ThreadView, ThreadContent, mainURL, ThreadURL)
                 else:
                     printDBG( "ok_pressed selected TYPE_SEARCH" )
-                    self.currSelIndex = currSelIndex
-                    self.startSearchProcedure(item.possibleTypesOfSearch)
         else:
             self.showWindow()
             
@@ -486,11 +364,11 @@ class BoardReaderWidget(Screen):
         
     def onStart(self):
         if self.started == 0:
-            self.selectHost()
+            self.selectSparkWallChannel()
             self.started = 1
         return
         
-    def selectHost(self):
+    def selectSparkWallChannel(self):
     
         self.host = None
         self.hostName = ''
@@ -512,105 +390,23 @@ class BoardReaderWidget(Screen):
             pass
 
         options = [] 
-        hostsList = GetHostsList()
+        hostsList = '' ### NOTE GetHostsList() # tu nalezy pobrac liste kanalow
         brokenHostList = []
         for hostName in hostsList:
-            hostEnabled  = False
-            try:
-                exec('if config.plugins.BoardReader.host' + hostName + '.value: hostEnabled = True')
-            except:
-                hostEnabled = False
-            if True == hostEnabled:
-                if not config.plugins.BoardReader.devHelper.value:
-                    try:
-                        _temp = __import__('forums.forum' + hostName, globals(), locals(), ['gettytul'], -1)
-                        title = _temp.gettytul()
-                        printDBG('host name "%s"' % hostName)
-                    except:
-                        printDBG('get host name exception for host "%s"' % hostName)
-                        brokenHostList.append('host'+hostName)
-                        continue # do not use default name if import name will failed
-                else:
-                    _temp = __import__('forums.forum' + hostName, globals(), locals(), ['gettytul'], -1)
-                    title = _temp.gettytul()
-                    printDBG('host name "%s"' % hostName)
-                options.extend(((title, hostName),))
+            options.extend(((title, hostName),))
         options.sort()
-        
-        #if len(brokenHostList) > 0:
-        #    self.session.open(MessageBox, "Poniższe playery są niepoprawne lub brakuje im pewnych modułów.\n" + '\n'.join(brokenHostList), type = MessageBox.TYPE_INFO, timeout = 10 )
-     
-        options.extend(((_("Config"), "config"),))
+
         from playerselector import PlayerSelectorWidget
 
-        self.session.openWithCallback(self.selectHostCallback, PlayerSelectorWidget, list = options)
+        self.session.openWithCallback(self.selectSparkWallChannelCallback, PlayerSelectorWidget, list = options)
         return
     
-    def selectHostCallback(self, ret):
-        hasIcon = False
+    def selectSparkWallChannelCallback(self, ret): #tutaj update EPG i ewentualnie innych pierdol
         if ret:               
             printDBG("Selected host" + ret[1])
-            if ret[1] == "config":
-                self.session.openWithCallback(self.selectHost, ConfigMenu)
-                return
-            else:
-                if not config.plugins.BoardReader.devHelper.value:
-                    try:
-                        self.hostName = ret[1]
-                        _temp = __import__('forums.forum' + self.hostName, globals(), locals(), ['MyHost'], -1)
-                        self.host = _temp.MyHost()
-                    except:
-                        printDBG( 'Cannot import class MyHost for host: "%s"' % ret[1] )
-                        self.close()
-                        return
-                else:
-                    self.hostName = ret[1]
-                    _temp = __import__('forums.forum' + self.hostName, globals(), locals(), ['MyHost'], -1)
-                    self.host = _temp.MyHost()
-                
-            if self.showMessageNoFreeSpaceForIcon and hasIcon:
-                self.showMessageNoFreeSpaceForIcon = False
-                self.session.open(MessageBox, "Brak wolnego miejsca w katalogu %s. \nNowe ikony nie beda ściągane. \nAby nowe ikony były dostępne wymagane jest 10MB wolnego miejsca." % (config.plugins.BoardReader.SciezkaCache.value), type = MessageBox.TYPE_INFO, timeout = 10 )
         else:
             self.close()
-            return
-        
-        #############################################
-        #            change logo for player
-        #############################################
-        self["playerlogo"].hide()
-        
-        hRet= self.host.getLogoPath()
-        if hRet.status == RetHost.OK and  len(hRet.value):
-            logoPath = hRet.value[0]
-                
-            if logoPath != '':
-                printDBG( 'Logo Path: ' + logoPath )
-                self["playerlogo"].decodeCover(logoPath, \
-                                               self.decodeCoverCallBack, \
-                                               "playerlogo")
-        #############################################
-        
-        # request initial list from host        
-        self.getInitialList()
-        
         return
-        
-    #end selectHostCallback(self, ret):
-
-    def is_stream(self, url):
-        if url[:7] == 'rtmp://':
-            return True
-        if url[:7] == 'rtsp://':
-            return True
-        if url[:6] == 'mms://':
-            return True
-        elif url[-5:] == '.m3u8':
-            return True
-        elif url[-7:] == '.stream':
-            return True
-        else:
-            return False
 
     def requestListFromHost(self, type, currSelIndex = -1, videoUrl = ''):
         
@@ -655,35 +451,6 @@ class BoardReaderWidget(Screen):
                         
         return
     
-    #end requestListFromHost(self, type, currSelIndex = -1, videoUrl = ''):
-        
-    def startSearchProcedure(self, searchTypes):
-        if searchTypes:
-            self.session.openWithCallback(self.selectSearchTypeCallback, ChoiceBox, title = "Wybierz typ wyszukiwania", list = searchTypes)
-        else:
-            self.searchType = None
-            self.session.openWithCallback(self.enterPatternCallBack, VirtualKeyBoard, title = (_("Wprowadz wzorzec")), text = self.searchPattern)
-    
-    def selectSearchTypeCallback(self, ret = None):
-        if ret:
-            self.searchType = ret[1]
-            self.session.openWithCallback(self.enterPatternCallBack, VirtualKeyBoard, title = (_("Wprowadz wzorzec")), text = self.searchPattern)
-        else:
-            pass
-            # zrezygnowal z wyszukiwania
-            
-    def enterPatternCallBack(self, callback = None):
-        if callback is not None and len(callback):  
-            self.searchPattern = callback
-            self.requestListFromHost('ForSearch')
-        else:
-            pass
-            # zrezygnowal z wyszukiwania
-    
-    def requestSearchListFromHost(self, searchPattern, searchType):
-        self.workThread = AsyncMethod(self.host.getSearchResults, self.callbackGetList)(searchPattern, searchType)
-    
-            
     def callbackGetList(self, ret):
         printDBG( "plugin:callbackGetList" )
         
@@ -703,26 +470,6 @@ class BoardReaderWidget(Screen):
         self.currList = ret.value
         
         self["list"].setList([ (x,) for x in self.currList])
-        
-        
-        ####################################################
-        #                   iconManager
-        ####################################################
-        iconList = []
-        # fill icon List for icon manager 
-        # if an user whant to see icons
-        if config.plugins.BoardReader.showcover.value and self.iconManager:
-            for it in self.currList:
-                if it.iconimage != '':
-                    iconList.append(it.iconimage)
-        
-        if len(iconList):
-            # List has been changed so clear old Queue
-            self.iconManager.clearDQueue()
-            # a new list of icons should be downloaded
-            self.iconManager.addToDQueue(iconList)
-        #####################################################
-        
         
         self["headertext"].setText(self.getCategoryPath())
             
@@ -784,23 +531,3 @@ class BoardReaderWidget(Screen):
         
     def __event(self, ev):
         pass
-
-    def createSummary(self):
-        return BoardReaderLCDScreen
-#class BoardReaderWidget
-
-
-class BoardReaderLCDScreen(Screen):
-    skin = """
-    <screen position="0,0" size="132,64" title="BoardReader">
-        <widget name="text1" position="4,0" size="132,14" font="Regular;12" halign="center" valign="center"/>
-         <widget name="text2" position="4,14" size="132,49" font="Regular;10" halign="center" valign="center"/>
-    </screen>"""
-
-    def __init__(self, session, parent):
-        Screen.__init__(self, session)
-        self["text1"] =  Label("Board Reader")
-        self["text2"] = Label("")
-
-    def setText(self, text):
-        self["text2"].setText(text[0:39])

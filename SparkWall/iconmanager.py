@@ -5,7 +5,7 @@
 ###################################################
 from asynccall import AsyncMethod
 from libs.crypto.hash.md5Hash import MD5
-from libs.tools import mkdirs as iptvtools_mkdirs, \
+from tools import mkdirs as iptvtools_mkdirs, \
                       checkIconName, \
                       removeAllIconsFromPath, \
                       getModifyDeltaDateInDays, \
@@ -21,7 +21,7 @@ from Components.config import config
 
 
 class IconManager:
-    DOWNLOADED_IMAGE_PATH = config.plugins.BoardReader.SciezkaCache.value
+    DOWNLOADED_IMAGE_PATH = config.plugins.SparkWall.SciezkaCache.value
 
     def __init__(self, updateFun = None, downloadNew = True):
         # download queue
@@ -37,7 +37,7 @@ class IconManager:
         self.updateFun = updateFun
         
         if not os_path.exists(self.DOWNLOADED_IMAGE_PATH):
-            iptvtools_mkdirs(config.plugins.BoardReader.SciezkaCache.value)
+            iptvtools_mkdirs(config.plugins.SparkWall.SciezkaCache.value)
         
         #load available icon from disk
         self.loadHistoryFromDisk()
@@ -53,9 +53,6 @@ class IconManager:
         self.clearDQueue()
         self.clearAAueue()
         
-        if '0' == config.plugins.BoardReader.deleteIcons.value:
-            removeAllIconsFromPath(config.plugins.BoardReader.SciezkaCache.value)
-            
         print "iconmanager.py del Delete IconManager"
         
     def stopWorkThread(self):
