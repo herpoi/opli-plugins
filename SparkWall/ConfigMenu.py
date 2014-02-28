@@ -10,7 +10,7 @@ from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Label import Label
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigDirectory, ConfigYesNo, Config, ConfigInteger, ConfigSubList, ConfigText, getConfigListEntry, configfile
 from Components.ConfigList import ConfigListScreen
-from libs.tools import printDBG, TranslateTXT as _
+from tools import printDBG, TranslateTXT as _
 
 config.plugins.SparkWall = ConfigSubsection()
 config.plugins.SparkWall.showinextensions = ConfigYesNo(default = True)

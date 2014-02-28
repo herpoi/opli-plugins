@@ -18,7 +18,7 @@ from Screens.MessageBox import MessageBox
 
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
-from libs.tools import  printDBG, TranslateTXT as _
+from tools import  printDBG, TranslateTXT as _
 from xml.etree.cElementTree import parse
 import string
 
@@ -54,20 +54,20 @@ def mainSetup(session,**kwargs):
 ####################################################
 #                   For IPTV components
 ####################################################
-from libs.asynccall import AsyncMethod
-from libs.MyList import MyListComponent
+from asynccall import AsyncMethod
+#from MyList import MyListComponent
 
 
 #####################################################
 #                     For hosts
 #####################################################
 # interface for hosts
-from libs.ihost import IHost, CDisplayListItem, RetHost, CUrlItem
+from ihost import IHost, CDisplayListItem, RetHost, CUrlItem
 ######################################################
 #                   For mainThreadQueue
 ######################################################
 from enigma import eTimer
-from libs.asynccall import CFunctionProxyQueue
+from asynccall import CFunctionProxyQueue
 ######################################################
 gMainFunctionsQueue = None
 
@@ -135,8 +135,8 @@ class SparkWallWidget(Screen):
         #self["key_yellow"] = StaticText("Show pictures")
         #self["key_blue"] = StaticText("Info")
 
-        self["list"] = MyListComponent()
-        self["list"].connectSelChanged(self.onSelectionChanged)
+        #self["list"] = MyListComponent()
+        #self["list"].connectSelChanged(self.onSelectionChanged)
         self["statustext"] = Label("Pobieranie listy...")
         self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions"],
         {
@@ -297,6 +297,7 @@ class SparkWallWidget(Screen):
         return
 
     def ok_pressed(self):
+        return
         if self.visible:
             sel = None
             try:

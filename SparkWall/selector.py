@@ -13,8 +13,8 @@ from Tools.LoadPixmap import LoadPixmap
 from Components.Label import Label
 from Components.config import config
 
-from libs.cover import Cover3
-from libs.tools import printDBG
+from cover import Cover3
+from tools import printDBG
 
 try:
     from _version import version as wersja

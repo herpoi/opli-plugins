@@ -4,7 +4,7 @@ from enigma import eListboxPythonMultiContent, eListbox, gFont, \
 from Tools.LoadPixmap import LoadPixmap
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
-from libs.ihost import CDisplayListItem
+from ihost import CDisplayListItem
 
 class MyListComponent(GUIComponent, object):
     ICON_CATEGORY = 'Extensions/BoardsClient/icons/CategoryItem.png'
