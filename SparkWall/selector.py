@@ -5,28 +5,63 @@
 #  $Id$
 #
 # 
-from Screens.Screen import Screen
-from Components.ActionMap import ActionMap, HelpableActionMap
-from enigma import ePoint
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS
-from Tools.LoadPixmap import LoadPixmap
-from Components.Label import Label
-from Components.config import config
-
-from cover import Cover3
+###################################################
+# LOCAL import
+###################################################
 from tools import printDBG
-
 try:
     from _version import version as wersja
 except:
     wersja="XX.YY"
 
+###################################################
+# FOREIGN import
+###################################################
+from Components.ActionMap import ActionMap, HelpableActionMap
+from Components.config import config
+from Components.Label import Label
+from Components.Pixmap import Pixmap
+from enigma import ePicLoad, ePoint
+from Screens.Screen import Screen
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_SKIN_IMAGE
+from Tools.LoadPixmap import LoadPixmap
+
+class Cover3(Pixmap):
+    def __init__(self):
+        Pixmap.__init__(self)
+        
+    def onShow(self):
+        Pixmap.onShow(self)
+
+    def setPixmap(self, ptr):
+        self.instance.setPixmap(ptr)
 
 class SelectorWidget(Screen):
    
     def __init__(self, session, list):
-        #printDBG("PlayerSelectorWidget length of list: %i" % len(list))
-        #printDBG("PlayerSelectorWidget icons size: " + config.plugins.BoardReader.IconsSize.value)
+        # position of first img
+        offsetCoverX = 200
+        offsetCoverY = 80
+        
+        # image size
+        coverWidth = int(config.plugins.BoardReader.IconsSize.value)
+        if coverWidth == 100:
+            coverHeight = 60
+        elif coverWidth == 220:
+            coverHeight = 132
+        
+        # space/distance between images
+        disWidth = 45 #int(coverWidth / 3 )
+        disHeight = 45 #int(coverHeight / 4)
+
+         # marker size should be larger than img
+        markerWidth = 45 + coverWidth
+        markerHeight = 45 + coverHeight
+        
+        # position of first marker 
+        offsetMarkerX = offsetCoverX - (markerWidth - coverWidth)/2
+        offsetMarkerY = offsetCoverY - (markerHeight - coverHeight)/2
+
         if len(list) > 16 and int(config.plugins.SparkWall.IconsSize.value) == 100:
             numOfRow = 4
             numOfCol = 5
@@ -53,30 +88,11 @@ class SelectorWidget(Screen):
             confNumOfRow = int(config.plugins.SparkWall.numOfRow.value)
             confNumOfCol = int(config.plugins.SparkWall.numOfCol.value)
             if confNumOfRow > 0: numOfRow = confNumOfRow
-            if confNumOfRow > 0: numOfCol = confNumOfCol
+            if confNumOfCol > 0: numOfCol = confNumOfCol
         except:
             pass
 
-        # position of first img
-        offsetCoverX = 25
-        offsetCoverY = 80
-        
-        # image size
-        coverWidth = int(config.plugins.BoardReader.IconsSize.value)
-        coverHeight = int(config.plugins.BoardReader.IconsSize.value)
-        
-        # space/distance between images
-        disWidth = int(coverWidth / 3 )
-        disHeight = int(coverHeight / 4)
-        
-        # marker size should be larger than img
-        markerWidth = 45 + coverWidth
-        markerHeight = 45 + coverHeight
-        
-        # position of first marker 
-        offsetMarkerX = offsetCoverX - (markerWidth - coverWidth)/2
-        offsetMarkerY = offsetCoverY - (markerHeight - coverHeight)/2
-        
+      
         # how to calculate position of image with indexes indxX, indxY:
         #posX = offsetCoverX + (coverWidth + disWidth) * indxX
         #posY = offsetCoverY + (coverHeight + disHeight) * indxY
@@ -91,6 +107,7 @@ class SelectorWidget(Screen):
         skin = """
             <screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">
             <widget name="statustext" position="10,0" zPosition="1" size="%d,70" font="Regular;26" halign="center" valign="center" transparent="1"/>
+            <widget name="channelname" position="0,0" zPosition="1" size="100,60" font="Regular;20" halign="center" valign="center" transparent="1"/>
             <widget name="marker" zPosition="2" position="%d,%d" size="%d,%d" transparent="1" alphatest="on" />
             """  %(
                 offsetCoverX + tmpX * numOfCol + offsetCoverX - disWidth, # width of window
@@ -101,6 +118,14 @@ class SelectorWidget(Screen):
                 )
                 
         for y in range(1,numOfRow+1):
+            for x in range(1,numOfCol+1):
+                skinCoverLine = """<widget name="chname_%s%s" position="%d,%d" size="%d,%d" font="Regular;20" halign="center" valign="center" transparent="1"/>""" % (x, y, 
+                    (offsetCoverX + tmpX * (x - 1) ), # pos X image
+                    (offsetCoverY + tmpY * (y - 1) ), # pos Y image
+                    coverWidth, 
+                    coverHeight
+                )
+                skin += '\n' + skinCoverLine
             for x in range(1,numOfCol+1):
                 skinCoverLine = """<widget name="cover_%s%s" zPosition="4" position="%d,%d" size="%d,%d" transparent="1" alphatest="on" />""" % (x, y, 
                     (offsetCoverX + tmpX * (x - 1) ), # pos X image
@@ -132,8 +157,8 @@ class SelectorWidget(Screen):
         # load icons
         self.pixmapList = []
         for idx in range(0,self.numOfItems):
-            self.pixmapList.append( LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '%i.png' % self.IconsSize)) )
-
+	    #print resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')
+            self.pixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')) )
         self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/icons/marker%i.png' % self.MarkerSize))
         
         self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions"],
@@ -163,12 +188,19 @@ class SelectorWidget(Screen):
 
         self["marker"] = Cover3()
         
+        chnameidx = -1
         for y in range(1,self.numOfRow+1):
             for x in range(1,self.numOfCol+1):
+                chnameidx += 1
+                #name, in case of no picon
+                chnameIndex = "chname_%s%s" % (x,y)
+                self[chnameIndex] = Label(self.currList[chnameidx][1])
+                #picons
                 strIndex = "cover_%s%s" % (x,y)
                 self[strIndex] = Cover3()
                 
         self["statustext"] = Label(self.currList[0][1])
+        self["channelname"] = Label(self.currList[0][1])
 
         # numbers of lines
         self.numOfLines = self.numOfItems / self.numOfCol
@@ -201,6 +233,7 @@ class SelectorWidget(Screen):
         newPage = self.currLine / self.numOfRow
         if newPage != self.currPage:
             self.currPage = newPage
+            self.updateLabels()
             self.updateIcons()
         
         # calculate dispY pos 
@@ -236,10 +269,22 @@ class SelectorWidget(Screen):
         self.updateIcons()
         return
         
+    def updateLabels(self):
+        idx = self.currPage * (self.numOfCol*self.numOfRow)
+        for y in range(1,self.numOfRow+1):
+            for x in range(1,self.numOfCol+1):
+                chnameIndex = "chname_%s%s" % (x,y)
+                if idx < self.numOfItems:
+                    self[chnameIndex].setText(self.currList[idx][1])
+                    idx += 1
+                else:
+                    self[chnameIndex].setText("")
+
     def updateIcons(self):
         idx = self.currPage * (self.numOfCol*self.numOfRow)
         for y in range(1,self.numOfRow+1):
             for x in range(1,self.numOfCol+1):
+                chnameIndex = "chname_%s%s" % (x,y)
                 strIndex = "cover_%s%s" % (x,y)
                 print("updateIcon for self[%s]" % strIndex)
                 if idx < self.numOfItems:
@@ -249,7 +294,6 @@ class SelectorWidget(Screen):
                     idx += 1
                 else:
                     self[strIndex].hide()
-                    
     
     def __del__(self):       
         return
@@ -295,6 +339,8 @@ class SelectorWidget(Screen):
         
         idx = self.currLine * self.numOfCol +  self.dispX
         self["statustext"].setText(self.currList[idx][1])
+        self["channelname"].setText(self.currList[idx][1])
+        self["channelname"].instance.move(ePoint(x+23,y+23))
         return
 
     def back_pressed(self):
