@@ -21,7 +21,7 @@ from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.config import config
 from Components.Label import Label
 from Components.Pixmap import Pixmap
-from enigma import ePicLoad, ePoint
+from enigma import ePicLoad, ePoint, getDesktop
 from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_SKIN_IMAGE
 from Tools.LoadPixmap import LoadPixmap
@@ -38,10 +38,12 @@ class Cover3(Pixmap):
 
 class SelectorWidget(Screen):
    
-    def __init__(self, session, list):
+    def __init__(self, session, list, CurIdx = 0):
+        sz_w = getDesktop(0).size().width() - 10
+        sz_h = getDesktop(0).size().height() - 10
         # position of first img
-        offsetCoverX = 200
-        offsetCoverY = 80
+        offsetCoverX = 450
+        offsetCoverY = 30
         
         # image size
         coverWidth = int(config.plugins.BoardReader.IconsSize.value)
@@ -106,12 +108,13 @@ class SelectorWidget(Screen):
         
         skin = """
             <screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">
+            <widget source="session.VideoPicture" render="Pig" position="30,30" size="417,243" backgroundColor="transparent" zPosition="1" />
             <widget name="statustext" position="10,0" zPosition="1" size="%d,70" font="Regular;26" halign="center" valign="center" transparent="1"/>
             <widget name="channelname" position="0,0" zPosition="1" size="100,60" font="Regular;20" halign="center" valign="center" transparent="1"/>
             <widget name="marker" zPosition="2" position="%d,%d" size="%d,%d" transparent="1" alphatest="on" />
             """  %(
-                offsetCoverX + tmpX * numOfCol + offsetCoverX - disWidth, # width of window
-                offsetCoverY + tmpY * numOfRow + offsetCoverX - disHeight, # height of window
+                sz_w, # width of window
+                sz_h, # height of window
                 offsetCoverX - 10 + tmpX * numOfCol + offsetCoverX - 10, # pos status line
                 offsetMarkerX, offsetMarkerY, # first marker position
                 markerWidth, markerHeight,    # marker size
@@ -350,7 +353,7 @@ class SelectorWidget(Screen):
     def ok_pressed(self):
         idx = self.currLine * self.numOfCol +  self.dispX
         if idx < self.numOfItems:
-            print "selected" + str(self.currList[idx][0])
+            print "[SparkWall:selector:ok_pressed] selected " + str(self.currList[idx][0])
             self.close(self.currList[idx])
         else:
             self.close(None)
