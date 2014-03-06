@@ -21,10 +21,38 @@ from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.config import config
 from Components.Label import Label
 from Components.Pixmap import Pixmap
-from enigma import ePicLoad, ePoint, getDesktop
+from Components.ProgressBar import ProgressBar
+from enigma import ePicLoad, ePoint, getDesktop, eTimer, ePixmap, eEPGCache, eServiceReference
 from Screens.Screen import Screen
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_SKIN_IMAGE
+from ServiceReference import ServiceReference
+import threading
+from time import localtime, time, strftime
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_SKIN_IMAGE, pathExists
 from Tools.LoadPixmap import LoadPixmap
+
+class Cover2(Pixmap):
+    def __init__(self):
+        Pixmap.__init__(self)
+        self.picload = ePicLoad()
+        self.picload.PictureData.get().append(self.paintIconPixmapCB)
+        self.paramsSet = False
+
+    def onShow(self):
+        Pixmap.onShow(self)
+
+    def paintIconPixmapCB(self, picInfo=None):
+        t = threading.currentThread()
+        ptr = self.picload.getData()
+        if ptr != None:
+            self.instance.setPixmap(ptr)
+            self.show()
+
+    def updateIcon(self, filename):
+        t = threading.currentThread()
+        if not self.paramsSet:
+            self.picload.setPara((self.instance.size().width(), self.instance.size().height(), 1, 1, False, 1, "#00000000"))
+            self.paramsSet = True
+        self.picload.startDecode(filename)
 
 class Cover3(Pixmap):
     def __init__(self):
@@ -38,24 +66,40 @@ class Cover3(Pixmap):
 
 class SelectorWidget(Screen):
    
-    def __init__(self, session, list, CurIdx = 0):
+    def __init__(self, session, list, CurIdx = 0, sSL = None):
+        self.currList = list
+        self.sServiceList = sSL
+        # numbers of items in self.currList
+        self.numOfItems = len(self.currList)
+        # load icons
+        self.pixmapList = []
+        for idx in range(0,self.numOfItems):
+        #print resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')
+            #self.pixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')) )
+            if pathExists(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')):
+                self.pixmapList.append("NONE")
+            else:
+                self.pixmapList.append("ShowName")
+
         sz_w = getDesktop(0).size().width() - 10
         sz_h = getDesktop(0).size().height() - 10
-        # position of first img
-        offsetCoverX = 450
-        offsetCoverY = 30
-        
-        # image size
-        coverWidth = int(config.plugins.BoardReader.IconsSize.value)
-        if coverWidth == 100:
-            coverHeight = 60
-        elif coverWidth == 220:
-            coverHeight = 132
-        
+        if config.plugins.SparkWall.usePIG.value == True:
+            if config.plugins.SparkWall.PIGSize.value == "417x243":
+                PIG_X = 417
+                PIG_Y = 243
+            else:
+                PIG_X = 0
+                PIG_Y = 0
         # space/distance between images
         disWidth = 45 #int(coverWidth / 3 )
         disHeight = 45 #int(coverHeight / 4)
-
+        # position of first img = 0 + <overscan> + <size PIG> + <space between images>
+        offsetCoverX = 30 + PIG_X + disWidth
+        offsetCoverY = 30
+        # image size 100x60
+        coverWidth = int(config.plugins.SparkWall.IconsSize.value.split('x')[0])
+        coverHeight = int(config.plugins.SparkWall.IconsSize.value.split('x')[1])
+        
          # marker size should be larger than img
         markerWidth = 45 + coverWidth
         markerHeight = 45 + coverHeight
@@ -64,36 +108,9 @@ class SelectorWidget(Screen):
         offsetMarkerX = offsetCoverX - (markerWidth - coverWidth)/2
         offsetMarkerY = offsetCoverY - (markerHeight - coverHeight)/2
 
-        if len(list) > 16 and int(config.plugins.SparkWall.IconsSize.value) == 100:
-            numOfRow = 4
-            numOfCol = 5
-        elif len(list) > 12 and int(config.plugins.SparkWall.IconsSize.value) == 100:
-            numOfRow = 4
-            numOfCol = 4
-        elif len(list) > 9:
-            numOfRow = 3
-            numOfCol = 4
-        elif len(list) > 6:
-            numOfRow = 3
-            numOfCol = 3
-        elif len(list) > 4:
-            numOfRow = 2
-            numOfCol = 3
-        elif len(list) > 2:
-            numOfRow = 2
-            numOfCol = 2
-        else:
-            numOfRow = 1
-            numOfCol = 2
-        
-        try:
-            confNumOfRow = int(config.plugins.SparkWall.numOfRow.value)
-            confNumOfCol = int(config.plugins.SparkWall.numOfCol.value)
-            if confNumOfRow > 0: numOfRow = confNumOfRow
-            if confNumOfCol > 0: numOfCol = confNumOfCol
-        except:
-            pass
-
+        #calculate rows/columns
+        numOfCol = int((sz_w - 30 - PIG_X - 30)/markerWidth)
+        numOfRow = int((sz_h - 20 - 20)/markerHeight)
       
         # how to calculate position of image with indexes indxX, indxY:
         #posX = offsetCoverX + (coverWidth + disWidth) * indxX
@@ -106,18 +123,74 @@ class SelectorWidget(Screen):
         tmpX = coverWidth + disWidth
         tmpY = coverHeight + disHeight
         
+        self.numOfRow = numOfRow
+        self.numOfCol = numOfCol
+        # position of first cover
+        self.offsetCoverX = offsetCoverX
+        self.offsetCoverY = offsetCoverY
+        # space/distance between images
+        self.disWidth = disWidth
+        self.disHeight = disHeight
+        # image size
+        self.coverWidth = coverWidth
+        self.coverHeight = coverHeight
+        # marker size should be larger than img
+        self.markerWidth = markerWidth
+        self.markerHeight = markerHeight
+
+        # numbers of lines
+        self.numOfLines = self.numOfItems / self.numOfCol
+        if self.numOfItems % self.numOfCol > 0:
+            self.numOfLines += 1
+
+        # numbers of pages
+        self.numOfPages = self.numOfLines / self.numOfRow
+        if self.numOfLines % self.numOfRow > 0:
+            self.numOfPages += 1
+
+        self.currPage = int(CurIdx/(self.numOfCol*self.numOfRow))
+        self.currLine = int((CurIdx - self.currPage*numOfCol*self.numOfRow)/self.numOfCol)
+
+        self.dispX = CurIdx - self.currPage * self.numOfCol * self.numOfRow - self.currLine * self.numOfCol
+        self.dispY = self.currLine
+        
+        print "Dane"
+        print CurIdx
+        print self.numOfCol
+        print self.numOfRow
+        print self.currPage
+        print self.currLine
+        print self.dispX
+        print self.dispY
+
         skin = """
             <screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">
-            <widget source="session.VideoPicture" render="Pig" position="30,30" size="417,243" backgroundColor="transparent" zPosition="1" />
-            <widget name="statustext" position="10,0" zPosition="1" size="%d,70" font="Regular;26" halign="center" valign="center" transparent="1"/>
-            <widget name="channelname" position="0,0" zPosition="1" size="100,60" font="Regular;20" halign="center" valign="center" transparent="1"/>
-            <widget name="marker" zPosition="2" position="%d,%d" size="%d,%d" transparent="1" alphatest="on" />
+            <widget source="session.VideoPicture" position="30,30" size="417,243" render="Pig" backgroundColor="transparent" zPosition="1" />
+            <widget name="marker"         position="%d,%d" size="%d,%d" zPosition="2" transparent="1" alphatest="on" />
+            <widget name="curChannelName" position="30,%d" size="%d,30" font="Regular;26" halign="center" valign="center" transparent="1" zPosition="1"/>
+            <widget name="NowEventTitle"  position="30,%d" size="%d,28" font="Regular;24" halign="center" valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
+            <widget name="NowEventStart"  position="30,%d" size="%d,28" font="Regular;24" halign="left"   valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
+            <widget name="vzProgress"     position="30,%d" size="%d,3"  transparent="1" zPosition="5" borderColor="#00c1ea02"/>
+            <eLabel                       position="30,%d" size="%d,3"                zPosition="4" backgroundColor="#f4f4f4"/>
+            <widget name="NowDuration"    position="30,%d" size="%d,28" font="Regular;24" halign="right"  valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
+            <widget name="NextEventTitle" position="30,%d" size="%d,28" font="Regular;24" halign="center"   valign="center" transparent="1" zPosition="2"/>
+            <widget name="NextEventStart" position="30,%d" size="%d,28" font="Regular;24" halign="left"   valign="center" transparent="1" zPosition="2"/>
+            <widget name="NextDuration"   position="30,%d" size="%d,28" font="Regular;24" halign="right"  valign="center" transparent="1" zPosition="2"/>
+
+            
             """  %(
-                sz_w, # width of window
-                sz_h, # height of window
-                offsetCoverX - 10 + tmpX * numOfCol + offsetCoverX - 10, # pos status line
+                sz_w, sz_h, #wielkosc glownego okna
                 offsetMarkerX, offsetMarkerY, # first marker position
                 markerWidth, markerHeight,    # marker size
+                30 + PIG_Y + 10, PIG_X, # widget name="curChannelName"
+                30 + PIG_Y + 10 + 40, PIG_X, # widget name="NowEventTitle"
+                30 + PIG_Y + 10 + 40 + 30, PIG_X, # widget name="NowEventStart"
+                30 + PIG_Y + 10 + 40 + 30 + 30 + 5, PIG_X, # widget name="vzProgress"
+                30 + PIG_Y + 10 + 40 + 30 + 30 + 5, PIG_X, # eLabel
+                30 + PIG_Y + 10 + 40 + 30, PIG_X, # widget name="NowDuration"
+                30 + PIG_Y + 10 + 40 + 30 + 30 + 5 + 30, PIG_X, # widget name="NextEventTitle"
+                30 + PIG_Y + 10 + 40 + 30 + 30 + 5 + 30 + 30, PIG_X, # widget name="NextEventStart"
+                30 + PIG_Y + 10 + 40 + 30 + 30 + 5 + 30 + 30, PIG_X, # widget name="NextDuration"
                 )
                 
         for y in range(1,numOfRow+1):
@@ -139,8 +212,6 @@ class SelectorWidget(Screen):
                 skin += '\n' + skinCoverLine
         skin += '</screen>'
                 
-        print skin
-        
         self.skin = skin
             
         self.session = session
@@ -151,17 +222,9 @@ class SelectorWidget(Screen):
         if list == None or len(list) <= 0:
             self.close(None)
             
-        self.currList = list
-        # numbers of items in self.currList
-        self.numOfItems = len(self.currList)
         self.IconsSize = int(config.plugins.BoardReader.IconsSize.value) #do ladowania ikon
         self.MarkerSize = self.IconsSize
         
-        # load icons
-        self.pixmapList = []
-        for idx in range(0,self.numOfItems):
-	    #print resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')
-            self.pixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')) )
         self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/icons/marker%i.png' % self.MarkerSize))
         
         self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions"],
@@ -174,22 +237,18 @@ class SelectorWidget(Screen):
             "down": self.keyDown,
         }, -1)
         
-        self.numOfRow = numOfRow
-        self.numOfCol = numOfCol
-        # position of first cover
-        self.offsetCoverX = offsetCoverX
-        self.offsetCoverY = offsetCoverY
-        # space/distance between images
-        self.disWidth = disWidth
-        self.disHeight = disHeight
-        # image size
-        self.coverWidth = coverWidth
-        self.coverHeight = coverHeight
-        # marker size should be larger than img
-        self.markerWidth = markerWidth
-        self.markerHeight = markerHeight
-
+        self["curChannelName"] = Label(self.currList[CurIdx][1])
         self["marker"] = Cover3()
+
+        self["NowEventStart"] = Label()
+        self["NextEventStart"] = Label()
+        self["NowEventEnd"] = Label()
+        self["NextEventEnd"] = Label()
+        self["NowEventTitle"] = Label()
+        self["NextEventTitle"] = Label()
+        self["NowDuration"] = Label()
+        self["NextDuration"] = Label()
+        self["vzProgress"] = ProgressBar()
         
         chnameidx = -1
         for y in range(1,self.numOfRow+1):
@@ -200,29 +259,20 @@ class SelectorWidget(Screen):
                 self[chnameIndex] = Label(self.currList[chnameidx][1])
                 #picons
                 strIndex = "cover_%s%s" % (x,y)
-                self[strIndex] = Cover3()
+                if config.plugins.SparkWall.ScaleIcons.value == False:
+                    self[strIndex] = Cover3()
+                else:
+                    self[strIndex] = Cover2()
+
+        self.epgcache = eEPGCache.getInstance()
                 
-        self["statustext"] = Label(self.currList[0][1])
-        self["channelname"] = Label(self.currList[0][1])
-
-        # numbers of lines
-        self.numOfLines = self.numOfItems / self.numOfCol
-        if self.numOfItems % self.numOfCol > 0:
-            self.numOfLines += 1
-
-        # numbers of pages
-        self.numOfPages = self.numOfLines / self.numOfRow
-        if self.numOfLines % self.numOfRow > 0:
-            self.numOfPages += 1
-
-        self.currPage = 0
-        self.currLine = 0
-
-        self.dispX = 0
-        self.dispY = 0
-    
         self.onLayoutFinish.append(self.onStart)
         self.visible = True
+        
+        self.zap = False
+        if config.plugins.SparkWall.ZapMode.value == "2ok":
+            self.zap = True
+        
         
     #Calculate marker position Y
     def calcMarkerPosY(self):
@@ -270,7 +320,15 @@ class SelectorWidget(Screen):
     def onStart(self):
         self["marker"].setPixmap( self.markerPixmap )
         self.updateIcons()
+        self.moveMarker()
         return
+        
+    def fillpixmapList(self):
+        for idx in range(0,self.numOfItems):
+            if self.pixmapList[idx] == "NONE":
+                self.pixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')))
+        return
+        
         
     def updateLabels(self):
         idx = self.currPage * (self.numOfCol*self.numOfRow)
@@ -278,10 +336,14 @@ class SelectorWidget(Screen):
             for x in range(1,self.numOfCol+1):
                 chnameIndex = "chname_%s%s" % (x,y)
                 if idx < self.numOfItems:
-                    self[chnameIndex].setText(self.currList[idx][1])
-                    idx += 1
+                    if self.pixmapList[idx] == "ShowName":
+                        self[chnameIndex].setText(self.currList[idx][1])
+                        idx += 1
+                    else:
+                        self[chnameIndex].setText("")
                 else:
                     self[chnameIndex].setText("")
+                        
 
     def updateIcons(self):
         idx = self.currPage * (self.numOfCol*self.numOfRow)
@@ -291,9 +353,16 @@ class SelectorWidget(Screen):
                 strIndex = "cover_%s%s" % (x,y)
                 print("updateIcon for self[%s]" % strIndex)
                 if idx < self.numOfItems:
-                    #self[strIndex].updateIcon( resolveFilename(SCOPE_PLUGINS, 'Extensions/BoardsClient/icons/PlayerSelector/' + self.currList[idx][1] + '.png'))
-                    self[strIndex].setPixmap(self.pixmapList[idx])
-                    self[strIndex].show()
+                    if config.plugins.SparkWall.ScaleIcons.value == True:
+                        self[strIndex].updateIcon(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png'))
+                    else:
+                        if self.pixmapList[idx] == "NONE":
+                            self.pixmapList[idx] = LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png'))
+                            #self.pixmapList[idx] = updateIcon(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png'))
+                        try:
+                            self[strIndex].setPixmap(self.pixmapList[idx])
+                            self[strIndex].show()
+                        except: pass
                     idx += 1
                 else:
                     self[strIndex].hide()
@@ -341,22 +410,25 @@ class SelectorWidget(Screen):
         self["marker"].instance.move(ePoint(x,y))
         
         idx = self.currLine * self.numOfCol +  self.dispX
-        self["statustext"].setText(self.currList[idx][1])
-        self["channelname"].setText(self.currList[idx][1])
-        self["channelname"].instance.move(ePoint(x+23,y+23))
+        self["curChannelName"].setText(self.currList[idx][1])
+        
+        current = ServiceReference(self.currList[idx][0])
+        nowepg, nowstart, nowend, nowname, nowduration, percentnow = self.getEPGNowNext(current.ref,0)
+        nextepg, nextstart, nextend, nextname, nextduration, percentnext = self.getEPGNowNext(current.ref,1)
+        self["NowEventStart"].setText(nowstart)
+        self["NextEventStart"].setText(nextstart)
+        self["NowEventEnd"].setText(nowend)
+        self["NextEventEnd"].setText(nextend)
+        self["NowEventTitle"].setText(nowname)
+        self["NextEventTitle"].setText(nextname)
+        self["NowDuration"].setText(nowduration)
+        self["NextDuration"].setText(nextduration)
+        self["vzProgress"].setValue(percentnow)
+        if config.plugins.SparkWall.ZapMode.value == "2ok": self.zap = True
         return
 
     def back_pressed(self):
         self.close(None)
-        return
-
-    def ok_pressed(self):
-        idx = self.currLine * self.numOfCol +  self.dispX
-        if idx < self.numOfItems:
-            print "[SparkWall:selector:ok_pressed] selected " + str(self.currList[idx][0])
-            self.close(self.currList[idx])
-        else:
-            self.close(None)
         return
     
     def hideWindow(self):
@@ -372,3 +444,48 @@ class SelectorWidget(Screen):
         
     def __event(self, ev):
         pass
+        
+    def getEPGNowNext(self, ref, modus):
+        # get now || next event
+        if self.epgcache is not None:
+            event = self.epgcache.lookupEvent(['IBDCT', (ref.toString(), modus, -1)])
+            if event:
+                if event[0][4]:
+                    t = localtime(event[0][1])
+                    begin = event[0][1]
+                    duration = event[0][2]
+                    now = int(time())
+                    if modus == 0:
+                        eventduration =_("+%d min") % (((event[0][1] + duration) - time()) / 60)
+                        percent = int((now - begin) * 100 / duration)
+                        eventname = event[0][4]
+                        eventstart = strftime("%H:%M", localtime(begin))
+                        eventend = strftime("%H:%M", localtime(begin + duration))
+                        eventtimename = ("%02d:%02d   %s") % (t[3],t[4], event[0][4])
+                    elif modus == 1:
+                        eventduration =_("%d min") % (duration / 60)
+                        percent = 0
+                        eventname = event[0][4]
+                        eventstart = strftime("%H:%M", localtime(begin))
+                        eventend = strftime("%H:%M", localtime(begin + duration))
+                        eventtimename = ("%02d:%02d   %s") % (t[3],t[4], event[0][4])
+                    return eventtimename, eventstart, eventend, eventname, eventduration, percent
+                else:
+                    return _("No EPG data"), "", "", _("No EPG data"), "", ""
+        return _("No EPG data"), "", "", _("No EPG data"), "", ""
+
+    def ok_pressed(self):
+        idx = self.currLine * self.numOfCol +  self.dispX
+        if idx < self.numOfItems:
+            print "[SparkWall:selector:ok_pressed] selected " + str(self.currList[idx][0])
+            if self.zap == True:
+                printDBG("[SparkWall] preview host")
+                service = eServiceReference(self.currList[idx][0])
+                self.sServiceList.setCurrentSelection(service) #wybieramy serwis na liscie
+                self.sServiceList.zap(enable_pipzap = True) # i przelaczamy 
+                self.zap = False
+            else:
+                self.close(self.currList[idx])
+        else:
+            self.close(None)
+        return

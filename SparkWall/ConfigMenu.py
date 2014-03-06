@@ -15,12 +15,16 @@ from tools import printDBG, TranslateTXT as _
 config.plugins.SparkWall = ConfigSubsection()
 config.plugins.SparkWall.showinextensions = ConfigYesNo(default = True)
 config.plugins.SparkWall.showinMainMenu = ConfigYesNo(default = False)
-config.plugins.SparkWall.AktualizacjaWmenu = ConfigYesNo(default = False)
-config.plugins.SparkWall.debugprint = ConfigSelection(default = "", choices = [("", "no"),("console", "yes, on console"),("debugfile", "yes, in /tmp/debug.log file")]) 
+config.plugins.SparkWall.debugprint = ConfigSelection(default = "console", choices = [("", "no"),("console", "yes, on console"),("debugfile", "yes, in /tmp/debug.log file")]) 
 #icons
-config.plugins.SparkWall.IconsSize = ConfigSelection(default = "100",choices=[("100", "Picon 100x60"),("220", "XPicon 220x132")]) 
-config.plugins.SparkWall.numOfRow = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("0", "auto")])
-config.plugins.SparkWall.numOfCol = ConfigSelection(default = "0", choices = [("1", "1"),("2", "2"),("3", "3"),("4", "4"),("5", "5"),("6", "6"),("7", "7"),("8", "8"),("0", "auto")])
+config.plugins.SparkWall.IconsSize = ConfigSelection(default = "100x60",choices=[("100x60", "Picon 100x60"),("220x132", "XPicon 220x132")]) 
+config.plugins.SparkWall.ScaleIcons = ConfigYesNo(default = True)
+config.plugins.SparkWall.usePIG = ConfigYesNo(default = True)
+config.plugins.SparkWall.PIGSize = ConfigSelection(default = "417x243",choices=[("417x243", "417x243")]) 
+
+config.plugins.SparkWall.ZapMode = ConfigSelection(default = "2ok",choices=[("ok", "Zap immediatelly"),("2ok", "Preview->Zap")]) 
+config.plugins.SparkWall.AutoPreview = ConfigSelection(default = "2",choices=[("0", "disabled"),("2", "after 2s"),("5", "after 5s"),("10", "after 10s")]) 
+
 
 class ConfigMenu(Screen, ConfigListScreen):
 
@@ -92,10 +96,15 @@ class ConfigMenu(Screen, ConfigListScreen):
 
     def runSetup(self):
 
-        # WYGLAD
+        self.list.append(getConfigListEntry(_("Picons size:"), config.plugins.SparkWall.IconsSize))
+        self.list.append(getConfigListEntry(_("Scale Picons? (slower)"), config.plugins.SparkWall.ScaleIcons))
+
+        self.list.append(getConfigListEntry(_("Zap mode:"), config.plugins.SparkWall.ZapMode))
+        self.list.append(getConfigListEntry(_("AutoPreview delay:"), config.plugins.SparkWall.usePIG))
+
+        self.list.append(getConfigListEntry(_("Show PIG (miniTV) window?"), config.plugins.SparkWall.usePIG))
         self.list.append(getConfigListEntry(_("Show plugin on the Extensions menu?"), config.plugins.SparkWall.showinextensions))
         self.list.append(getConfigListEntry(_("Show plugin in main menu?"), config.plugins.SparkWall.showinMainMenu))
-        #self.list.append(getConfigListEntry("Wyświetlać aktualizację w głównym menu?", config.plugins.SparkWall.AktualizacjaWmenu))
         self.list.append(getConfigListEntry(_("Enable DEBUG?"), config.plugins.SparkWall.debugprint))
         
         self["config"].list = self.list
