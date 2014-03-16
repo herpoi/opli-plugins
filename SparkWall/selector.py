@@ -84,25 +84,29 @@ class SelectorWidget(Screen):
         sz_w = getDesktop(0).size().width() - 10
         sz_h = getDesktop(0).size().height() - 10
         if config.plugins.SparkWall.usePIG.value == True:
-            if config.plugins.SparkWall.PIGSize.value == "417x243":
-                PIG_X = 417
-                PIG_Y = 243
-            else:
+            try:
+                PIG_X = int(config.plugins.SparkWall.PIGSize.value.split('x')[0])
+                PIG_Y = int(config.plugins.SparkWall.PIGSize.value.split('x')[1])
+            except:
                 PIG_X = 0
                 PIG_Y = 0
-        # space/distance between images
-        disWidth = 45 #int(coverWidth / 3 )
-        disHeight = 45 #int(coverHeight / 4)
-        # position of first img = 0 + <overscan> + <size PIG> + <space between images>
-        offsetCoverX = 30 + PIG_X + disWidth
-        offsetCoverY = 30
+
         # image size 100x60
         coverWidth = int(config.plugins.SparkWall.IconsSize.value.split('x')[0])
         coverHeight = int(config.plugins.SparkWall.IconsSize.value.split('x')[1])
         
          # marker size should be larger than img
-        markerWidth = 45 + coverWidth
-        markerHeight = 45 + coverHeight
+        markerWidth = 10 + coverWidth
+        markerHeight = 10 + coverHeight
+        self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/icons/marker%i.png' % coverWidth))
+        
+        # space/distance between images
+        disWidth = markerWidth - coverWidth
+        disHeight = markerHeight - markerHeight
+        
+        # position of first img = 0 + <overscan> + <size PIG> + <space between images>
+        offsetCoverX = 30 + PIG_X + disWidth
+        offsetCoverY = 30
         
         # position of first marker 
         offsetMarkerX = offsetCoverX - (markerWidth - coverWidth)/2
@@ -163,6 +167,7 @@ class SelectorWidget(Screen):
         print self.dispX
         print self.dispY
 
+#            <eLabel                       position="30,%d" size="%d,3"                zPosition="4" backgroundColor="#f4f4f4"/>
         skin = """
             <screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">
             <widget source="session.VideoPicture" position="30,30" size="417,243" render="Pig" backgroundColor="transparent" zPosition="1" />
@@ -171,7 +176,6 @@ class SelectorWidget(Screen):
             <widget name="NowEventTitle"  position="30,%d" size="%d,28" font="Regular;24" halign="center" valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
             <widget name="NowEventStart"  position="30,%d" size="%d,28" font="Regular;24" halign="left"   valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
             <widget name="vzProgress"     position="30,%d" size="%d,3"  transparent="1" zPosition="5" borderColor="#00c1ea02"/>
-            <eLabel                       position="30,%d" size="%d,3"                zPosition="4" backgroundColor="#f4f4f4"/>
             <widget name="NowDuration"    position="30,%d" size="%d,28" font="Regular;24" halign="right"  valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
             <widget name="NextEventTitle" position="30,%d" size="%d,28" font="Regular;24" halign="center"   valign="center" transparent="1" zPosition="2"/>
             <widget name="NextEventStart" position="30,%d" size="%d,28" font="Regular;24" halign="left"   valign="center" transparent="1" zPosition="2"/>
@@ -186,7 +190,7 @@ class SelectorWidget(Screen):
                 30 + PIG_Y + 10 + 40, PIG_X, # widget name="NowEventTitle"
                 30 + PIG_Y + 10 + 40 + 30, PIG_X, # widget name="NowEventStart"
                 30 + PIG_Y + 10 + 40 + 30 + 30 + 5, PIG_X, # widget name="vzProgress"
-                30 + PIG_Y + 10 + 40 + 30 + 30 + 5, PIG_X, # eLabel
+                #30 + PIG_Y + 10 + 40 + 30 + 30 + 5, PIG_X, # eLabel
                 30 + PIG_Y + 10 + 40 + 30, PIG_X, # widget name="NowDuration"
                 30 + PIG_Y + 10 + 40 + 30 + 30 + 5 + 30, PIG_X, # widget name="NextEventTitle"
                 30 + PIG_Y + 10 + 40 + 30 + 30 + 5 + 30 + 30, PIG_X, # widget name="NextEventStart"
@@ -222,11 +226,6 @@ class SelectorWidget(Screen):
         if list == None or len(list) <= 0:
             self.close(None)
             
-        self.IconsSize = int(config.plugins.BoardReader.IconsSize.value) #do ladowania ikon
-        self.MarkerSize = self.IconsSize
-        
-        self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/icons/marker%i.png' % self.MarkerSize))
-        
         self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions"],
         {
             "ok": self.ok_pressed,
@@ -318,6 +317,7 @@ class SelectorWidget(Screen):
         return
         
     def onStart(self):
+        self.VideoSize()
         self["marker"].setPixmap( self.markerPixmap )
         self.updateIcons()
         self.moveMarker()
@@ -474,6 +474,16 @@ class SelectorWidget(Screen):
                     return _("No EPG data"), "", "", _("No EPG data"), "", ""
         return _("No EPG data"), "", "", _("No EPG data"), "", ""
 
+    def VideoSize(X = 30, Y=30, W=417, H=253):
+        mypath='/proc/stb/vmpeg/0/dst_all'
+        try:
+            f = open(mypath, "w")
+            f.write('%s,%s,%s,%s' % (hex(int(X)),hex(int(Y)),hex(int(W)),hex(int(H))))
+            f.close()
+        except IOError:
+            pass
+        return
+    
     def ok_pressed(self):
         idx = self.currLine * self.numOfCol +  self.dispX
         if idx < self.numOfItems:
@@ -483,6 +493,7 @@ class SelectorWidget(Screen):
                 service = eServiceReference(self.currList[idx][0])
                 self.sServiceList.setCurrentSelection(service) #wybieramy serwis na liscie
                 self.sServiceList.zap(enable_pipzap = True) # i przelaczamy 
+                self.VideoSize()
                 self.zap = False
             else:
                 self.close(self.currList[idx])
