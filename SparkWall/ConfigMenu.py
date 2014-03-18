@@ -17,7 +17,7 @@ config.plugins.SparkWall.showinextensions = ConfigYesNo(default = True)
 config.plugins.SparkWall.showinMainMenu = ConfigYesNo(default = False)
 config.plugins.SparkWall.debugprint = ConfigSelection(default = "console", choices = [("", "no"),("console", "yes, on console"),("debugfile", "yes, in /tmp/debug.log file")]) 
 #icons
-config.plugins.SparkWall.IconsSize = ConfigSelection(default = "100x60",choices=[("100x60", "Picon 100x60"),("220x132", "XPicon 220x132")]) 
+config.plugins.SparkWall.IconsSize = ConfigSelection(default = "220x132",choices=[("100x60", "Picon 100x60"),("220x132", "XPicon 220x132")]) 
 config.plugins.SparkWall.ScaleIcons = ConfigYesNo(default = True)
 config.plugins.SparkWall.usePIG = ConfigYesNo(default = True)
 config.plugins.SparkWall.PIGSize = ConfigSelection(default = "417x243",choices=[("417x243", "417x243")]) 
@@ -96,8 +96,8 @@ class ConfigMenu(Screen, ConfigListScreen):
 
     def runSetup(self):
 
-        self.list.append(getConfigListEntry(_("Picons size:"), config.plugins.SparkWall.IconsSize))
-        self.list.append(getConfigListEntry(_("Scale Picons? (slower)"), config.plugins.SparkWall.ScaleIcons))
+        #self.list.append(getConfigListEntry(_("Picons size:"), config.plugins.SparkWall.IconsSize))
+        #self.list.append(getConfigListEntry(_("Scale Picons? (slower)"), config.plugins.SparkWall.ScaleIcons))
 
         self.list.append(getConfigListEntry(_("Zap mode:"), config.plugins.SparkWall.ZapMode))
         self.list.append(getConfigListEntry(_("AutoPreview delay:"), config.plugins.SparkWall.usePIG))

@@ -22,7 +22,8 @@ from Components.config import config
 from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.ProgressBar import ProgressBar
-from enigma import ePicLoad, ePoint, getDesktop, eTimer, ePixmap, eEPGCache, eServiceReference
+from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
+from enigma import ePicLoad, ePoint, getDesktop, eTimer, ePixmap, eEPGCache, eServiceReference, iPlayableService
 from Screens.Screen import Screen
 from ServiceReference import ServiceReference
 import threading
@@ -158,15 +159,6 @@ class SelectorWidget(Screen):
         self.dispX = CurIdx - self.currPage * self.numOfCol * self.numOfRow - self.currLine * self.numOfCol
         self.dispY = self.currLine
         
-        print "Dane"
-        print CurIdx
-        print self.numOfCol
-        print self.numOfRow
-        print self.currPage
-        print self.currLine
-        print self.dispX
-        print self.dispY
-
 #            <eLabel                       position="30,%d" size="%d,3"                zPosition="4" backgroundColor="#f4f4f4"/>
         skin = """
             <screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">
@@ -265,14 +257,15 @@ class SelectorWidget(Screen):
 
         self.epgcache = eEPGCache.getInstance()
                 
-        self.onLayoutFinish.append(self.onStart)
-        self.visible = True
-        
         self.zap = False
         if config.plugins.SparkWall.ZapMode.value == "2ok":
             self.zap = True
-        
-        
+            self.__event_tracker = ServiceEventTracker(screen=self,eventmap={iPlayableService.evUpdatedInfo: self.InitVideoSize})     
+
+        self.onLayoutFinish.append(self.onStart)
+        self.visible = True
+           
+#######################################################################################################################
     #Calculate marker position Y
     def calcMarkerPosY(self):
         
@@ -474,14 +467,20 @@ class SelectorWidget(Screen):
                     return _("No EPG data"), "", "", _("No EPG data"), "", ""
         return _("No EPG data"), "", "", _("No EPG data"), "", ""
 
-    def VideoSize(X = 30, Y=30, W=417, H=253):
-        mypath='/proc/stb/vmpeg/0/dst_all'
-        try:
-            f = open(mypath, "w")
-            f.write('%s,%s,%s,%s' % (hex(int(X)),hex(int(Y)),hex(int(W)),hex(int(H))))
-            f.close()
-        except IOError:
-            pass
+    def InitVideoSize(self):
+        #self.VideoSize
+        self.Timer = eTimer()
+        self.Timer.callback.append(self.VideoSize)
+        self.Timer.start(1000*2, 1)
+
+    def VideoSize(self, vsX = 30, vsY= 30, vsW=417, vsH=253):
+        return
+        mypath='/proc/stb/vmpeg/0/dst_'
+        print('VideoSize: %s,%s,%s,%s' % ( hex(vsX), hex(vsY), hex(vsW), hex(vsH) ) )
+        with open(mypath + "left", "w") as f: f.write("%X" % vsX)
+        with open(mypath + "top", "w") as f: f.write("%X" % vsY)
+        with open(mypath + "width", "w") as f: f.write("%X" % vsW)
+        with open(mypath + "height", "w") as f: f.write("%X" % vsH)
         return
     
     def ok_pressed(self):
@@ -493,7 +492,7 @@ class SelectorWidget(Screen):
                 service = eServiceReference(self.currList[idx][0])
                 self.sServiceList.setCurrentSelection(service) #wybieramy serwis na liscie
                 self.sServiceList.zap(enable_pipzap = True) # i przelaczamy 
-                self.VideoSize()
+                #self.VideoSize()
                 self.zap = False
             else:
                 self.close(self.currList[idx])
