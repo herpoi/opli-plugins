@@ -89,10 +89,12 @@ class SelectorWidget(Screen):
                 PIG_X = int(config.plugins.SparkWall.PIGSize.value.split('x')[0])
                 PIG_Y = int(config.plugins.SparkWall.PIGSize.value.split('x')[1])
             except:
-                PIG_X = 0
-                PIG_Y = 0
+                pass
+        else:
+            PIG_X = 0
+            PIG_Y = 0
 
-        # image size 100x60
+        # default image size 220x132
         coverWidth = int(config.plugins.SparkWall.IconsSize.value.split('x')[0])
         coverHeight = int(config.plugins.SparkWall.IconsSize.value.split('x')[1])
         
@@ -103,7 +105,7 @@ class SelectorWidget(Screen):
         
         # space/distance between images
         disWidth = markerWidth - coverWidth
-        disHeight = markerHeight - markerHeight
+        disHeight = markerHeight - coverHeight
         
         # position of first img = 0 + <overscan> + <size PIG> + <space between images>
         offsetCoverX = 30 + PIG_X + disWidth
