@@ -91,7 +91,10 @@ class SelectorWidget(Screen):
             except:
                 pass
         else:
-            PIG_X = 0
+            try:
+                PIG_X = int(config.plugins.SparkWall.PIGSize.value.split('x')[0])
+            except:
+                pass
             PIG_Y = 0
 
         # default image size 220x132
@@ -118,7 +121,10 @@ class SelectorWidget(Screen):
         #calculate rows/columns
         numOfCol = int((sz_w - 30 - PIG_X - 30)/markerWidth)
         numOfRow = int((sz_h - 20 - 20)/markerHeight)
-      
+        
+        #recalculate disWidth and initial position to have picons nicely formatted
+        disWidth = int( ((sz_w - 30 - PIG_X - 30) - numOfCol * markerWidth)/(numOfCol+1) )
+        offsetMarkerX += disWidth
         # how to calculate position of image with indexes indxX, indxY:
         #posX = offsetCoverX + (coverWidth + disWidth) * indxX
         #posY = offsetCoverY + (coverHeight + disHeight) * indxY
@@ -132,15 +138,19 @@ class SelectorWidget(Screen):
         
         self.numOfRow = numOfRow
         self.numOfCol = numOfCol
+
         # position of first cover
         self.offsetCoverX = offsetCoverX
         self.offsetCoverY = offsetCoverY
+
         # space/distance between images
         self.disWidth = disWidth
         self.disHeight = disHeight
+
         # image size
         self.coverWidth = coverWidth
         self.coverHeight = coverHeight
+
         # marker size should be larger than img
         self.markerWidth = markerWidth
         self.markerHeight = markerHeight
@@ -162,9 +172,10 @@ class SelectorWidget(Screen):
         self.dispY = self.currLine
         
 #            <eLabel                       position="30,%d" size="%d,3"                zPosition="4" backgroundColor="#f4f4f4"/>
-        skin = """
-            <screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">
-            <widget source="session.VideoPicture" position="30,30" size="417,243" render="Pig" backgroundColor="transparent" zPosition="1" />
+        skin = """<screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">\n""" % (sz_w, sz_h) #wielkosc glownego okna
+        if config.plugins.SparkWall.usePIG.value == True:    
+            skin += """<widget source="session.VideoPicture" position="30,30" size="417,243" render="Pig" backgroundColor="transparent" zPosition="1" />"""
+        skin += """
             <widget name="marker"         position="%d,%d" size="%d,%d" zPosition="2" transparent="1" alphatest="on" />
             <widget name="curChannelName" position="30,%d" size="%d,30" font="Regular;26" halign="center" valign="center" transparent="1" zPosition="1"/>
             <widget name="NowEventTitle"  position="30,%d" size="%d,28" font="Regular;24" halign="center" valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
@@ -177,7 +188,6 @@ class SelectorWidget(Screen):
 
             
             """  %(
-                sz_w, sz_h, #wielkosc glownego okna
                 offsetMarkerX, offsetMarkerY, # first marker position
                 markerWidth, markerHeight,    # marker size
                 30 + PIG_Y + 10, PIG_X, # widget name="curChannelName"
