@@ -18,9 +18,9 @@ config.plugins.SparkWall.showinMainMenu = ConfigYesNo(default = False)
 config.plugins.SparkWall.debugprint = ConfigSelection(default = "console", choices = [("", "no"),("console", "yes, on console"),("debugfile", "yes, in /tmp/debug.log file")]) 
 #icons
 config.plugins.SparkWall.IconsSize = ConfigSelection(default = "220x132",choices=[("100x60", "Picon 100x60"),("220x132", "XPicon 220x132")]) 
-config.plugins.SparkWall.ScaleIcons = ConfigYesNo(default = True)
+config.plugins.SparkWall.ScaleIcons = ConfigYesNo(default = False)
 config.plugins.SparkWall.usePIG = ConfigYesNo(default = True)
-config.plugins.SparkWall.PIGSize = ConfigSelection(default = "417x243",choices=[("417x243", "417x243")]) 
+config.plugins.SparkWall.PIGSize = ConfigSelection(default = "285x166",choices=[("285x166", "285x166"),("370x216", "370x216"),("417x243", "417x243")]) 
 
 config.plugins.SparkWall.ZapMode = ConfigSelection(default = "2ok",choices=[("ok", "Zap immediatelly"),("2ok", "Preview->Zap")]) 
 config.plugins.SparkWall.AutoPreview = ConfigSelection(default = "2",choices=[("0", "disabled"),("2", "after 2s"),("5", "after 5s"),("10", "after 10s")]) 
@@ -96,13 +96,14 @@ class ConfigMenu(Screen, ConfigListScreen):
 
     def runSetup(self):
 
-        #self.list.append(getConfigListEntry(_("Picons size:"), config.plugins.SparkWall.IconsSize))
+        self.list.append(getConfigListEntry(_("Picons size:"), config.plugins.SparkWall.IconsSize))
         #self.list.append(getConfigListEntry(_("Scale Picons? (slower)"), config.plugins.SparkWall.ScaleIcons))
 
         self.list.append(getConfigListEntry(_("Zap mode:"), config.plugins.SparkWall.ZapMode))
         self.list.append(getConfigListEntry(_("AutoPreview delay:"), config.plugins.SparkWall.usePIG))
 
         self.list.append(getConfigListEntry(_("Show PIG (miniTV) window?"), config.plugins.SparkWall.usePIG))
+        self.list.append(getConfigListEntry(_("PIG size/Descr width:"), config.plugins.SparkWall.PIGSize))
         self.list.append(getConfigListEntry(_("Show plugin on the Extensions menu?"), config.plugins.SparkWall.showinextensions))
         self.list.append(getConfigListEntry(_("Show plugin in main menu?"), config.plugins.SparkWall.showinMainMenu))
         self.list.append(getConfigListEntry(_("Enable DEBUG?"), config.plugins.SparkWall.debugprint))

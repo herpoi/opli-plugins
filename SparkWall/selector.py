@@ -26,10 +26,24 @@ from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import ePicLoad, ePoint, getDesktop, eTimer, ePixmap, eEPGCache, eServiceReference, iPlayableService
 from Screens.Screen import Screen
 from ServiceReference import ServiceReference
-import threading
+from threading import Thread, currentThread
+from thread import start_new_thread, allocate_lock
 from time import localtime, time, strftime
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_SKIN_IMAGE, pathExists
 from Tools.LoadPixmap import LoadPixmap
+###################################################
+class FillPiconsList(Thread):
+    def __init__(self, myList):
+        Thread.__init__(self)
+        self.session = session
+        self.list = myList
+        self.PicList = []
+    def run(self):
+        for idx in range( 0 , len(self.list) ):
+            self.PicList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.list[idx][0].split(':',10)[:10]) + '.png')))
+        return self.PicList
+        
+###################################################
 
 class Cover2(Pixmap):
     def __init__(self):
@@ -42,14 +56,14 @@ class Cover2(Pixmap):
         Pixmap.onShow(self)
 
     def paintIconPixmapCB(self, picInfo=None):
-        t = threading.currentThread()
+        t = currentThread()
         ptr = self.picload.getData()
         if ptr != None:
             self.instance.setPixmap(ptr)
             self.show()
 
     def updateIcon(self, filename):
-        t = threading.currentThread()
+        t = currentThread()
         if not self.paramsSet:
             self.picload.setPara((self.instance.size().width(), self.instance.size().height(), 1, 1, False, 1, "#00000000"))
             self.paramsSet = True
@@ -69,18 +83,12 @@ class SelectorWidget(Screen):
    
     def __init__(self, session, list, CurIdx = 0, sSL = None):
         self.currList = list
+        self.currIdx = CurIdx
         self.sServiceList = sSL
         # numbers of items in self.currList
         self.numOfItems = len(self.currList)
-        # load icons
+        # initiate icons list
         self.pixmapList = []
-        for idx in range(0,self.numOfItems):
-        #print resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')
-            #self.pixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')) )
-            if pathExists(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')):
-                self.pixmapList.append("NONE")
-            else:
-                self.pixmapList.append("ShowName")
 
         sz_w = getDesktop(0).size().width() - 10
         sz_h = getDesktop(0).size().height() - 10
@@ -101,7 +109,7 @@ class SelectorWidget(Screen):
         coverWidth = int(config.plugins.SparkWall.IconsSize.value.split('x')[0])
         coverHeight = int(config.plugins.SparkWall.IconsSize.value.split('x')[1])
         
-         # marker size should be larger than img
+        # marker size should be larger than img
         markerWidth = 10 + coverWidth
         markerHeight = 10 + coverHeight
         self.markerPixmap = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/SparkWall/icons/marker%i.png' % coverWidth))
@@ -123,7 +131,7 @@ class SelectorWidget(Screen):
         numOfRow = int((sz_h - 20 - 20)/markerHeight)
         
         #recalculate disWidth and initial position to have picons nicely formatted
-        disWidth = int( ((sz_w - 30 - PIG_X - 30) - numOfCol * markerWidth)/(numOfCol+1) )
+        disWidth = int( ((sz_w - 30 - PIG_X - 30) - numOfCol * markerWidth)/numOfCol )
         offsetMarkerX += disWidth
         # how to calculate position of image with indexes indxX, indxY:
         #posX = offsetCoverX + (coverWidth + disWidth) * indxX
@@ -165,7 +173,7 @@ class SelectorWidget(Screen):
         if self.numOfLines % self.numOfRow > 0:
             self.numOfPages += 1
 
-        self.currPage = int(CurIdx/(self.numOfCol*self.numOfRow))
+        self.currPage = int(CurIdx/(self.numOfCol*self.numOfRow)) #idx=self.currPage * (self.numOfCol*self.numOfRow)
         self.currLine = int((CurIdx - self.currPage*numOfCol*self.numOfRow)/self.numOfCol)
 
         self.dispX = CurIdx - self.currPage * self.numOfCol * self.numOfRow - self.currLine * self.numOfCol
@@ -174,9 +182,9 @@ class SelectorWidget(Screen):
 #            <eLabel                       position="30,%d" size="%d,3"                zPosition="4" backgroundColor="#f4f4f4"/>
         skin = """<screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">\n""" % (sz_w, sz_h) #wielkosc glownego okna
         if config.plugins.SparkWall.usePIG.value == True:    
-            skin += """<widget source="session.VideoPicture" position="30,30" size="417,243" render="Pig" backgroundColor="transparent" zPosition="1" />"""
+            skin += """<widget source="session.VideoPicture" position="30,30" size="%d,%d" render="Pig" backgroundColor="transparent" zPosition="1" />""" % (PIG_X, PIG_Y) #PIG size
         skin += """
-            <widget name="marker"         position="%d,%d" size="%d,%d" zPosition="2" transparent="1" alphatest="on" />
+            <widget name="marker"         position="%d,%d" size="%d,%d" zPosition="2" transparent="1" alphatest="blend" />
             <widget name="curChannelName" position="30,%d" size="%d,30" font="Regular;26" halign="center" valign="center" transparent="1" zPosition="1"/>
             <widget name="NowEventTitle"  position="30,%d" size="%d,28" font="Regular;24" halign="center" valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
             <widget name="NowEventStart"  position="30,%d" size="%d,28" font="Regular;24" halign="left"   valign="center" transparent="1" zPosition="2" foregroundColor="#fcc000" />
@@ -211,7 +219,7 @@ class SelectorWidget(Screen):
                 )
                 skin += '\n' + skinCoverLine
             for x in range(1,numOfCol+1):
-                skinCoverLine = """<widget name="cover_%s%s" zPosition="4" position="%d,%d" size="%d,%d" transparent="1" alphatest="on" />""" % (x, y, 
+                skinCoverLine = """<widget name="cover_%s%s" zPosition="4" position="%d,%d" size="%d,%d" transparent="1" alphatest="blend" />""" % (x, y, 
                     (offsetCoverX + tmpX * (x - 1) ), # pos X image
                     (offsetCoverY + tmpY * (y - 1) ), # pos Y image
                     coverWidth, 
@@ -278,6 +286,26 @@ class SelectorWidget(Screen):
         self.visible = True
            
 #######################################################################################################################
+    def onStart(self):
+        self.Timer = eTimer()
+        self.Timer.callback.append(self.startfillpixmapListThread)
+        self.Timer.start(1000, 1)
+        #self.VideoSize()
+        self["marker"].setPixmap( self.markerPixmap )
+        self.updateIcons()
+        self.moveMarker()
+        return
+        
+    def startfillpixmapListThread(self):
+        piconsThread = Thread( target = self.fillpixmapList )
+        piconsThread.start()
+
+    def fillpixmapList(self):
+        for idx in range(0,self.numOfItems):
+            self.pixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')))
+        return
+        
+#######################################################################################################################
     #Calculate marker position Y
     def calcMarkerPosY(self):
         
@@ -290,7 +318,6 @@ class SelectorWidget(Screen):
         newPage = self.currLine / self.numOfRow
         if newPage != self.currPage:
             self.currPage = newPage
-            self.updateLabels()
             self.updateIcons()
         
         # calculate dispY pos 
@@ -321,56 +348,27 @@ class SelectorWidget(Screen):
 
         return
         
-    def onStart(self):
-        self.VideoSize()
-        self["marker"].setPixmap( self.markerPixmap )
-        self.updateIcons()
-        self.moveMarker()
-        return
-        
-    def fillpixmapList(self):
-        for idx in range(0,self.numOfItems):
-            if self.pixmapList[idx] == "NONE":
-                self.pixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png')))
-        return
-        
-        
-    def updateLabels(self):
-        idx = self.currPage * (self.numOfCol*self.numOfRow)
-        for y in range(1,self.numOfRow+1):
-            for x in range(1,self.numOfCol+1):
-                chnameIndex = "chname_%s%s" % (x,y)
-                if idx < self.numOfItems:
-                    if self.pixmapList[idx] == "ShowName":
-                        self[chnameIndex].setText(self.currList[idx][1])
-                        idx += 1
-                    else:
-                        self[chnameIndex].setText("")
-                else:
-                    self[chnameIndex].setText("")
-                        
-
     def updateIcons(self):
-        idx = self.currPage * (self.numOfCol*self.numOfRow)
+        self.mypixmapList = []
+        pageidx = self.currPage * (self.numOfCol*self.numOfRow)
+        idx = 0
         for y in range(1,self.numOfRow+1):
             for x in range(1,self.numOfCol+1):
                 chnameIndex = "chname_%s%s" % (x,y)
                 strIndex = "cover_%s%s" % (x,y)
                 print("updateIcon for self[%s]" % strIndex)
-                if idx < self.numOfItems:
-                    if config.plugins.SparkWall.ScaleIcons.value == True:
-                        self[strIndex].updateIcon(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png'))
-                    else:
-                        if self.pixmapList[idx] == "NONE":
-                            self.pixmapList[idx] = LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png'))
-                            #self.pixmapList[idx] = updateIcon(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[idx][0].split(':',10)[:10]) + '.png'))
-                        try:
-                            self[strIndex].setPixmap(self.pixmapList[idx])
-                            self[strIndex].show()
-                        except: pass
+                if pageidx + idx < self.numOfItems:
+                    try:
+                        self[strIndex].setPixmap(self.pixmapList[pageidx + idx])
+                    except:
+                        self.mypixmapList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.currList[pageidx+idx][0].split(':',10)[:10]) + '.png')) )
+                        self[strIndex].setPixmap(self.mypixmapList[idx])
+                    self[strIndex].show()
+                    self[chnameIndex].setText(self.currList[pageidx+idx][1])
                     idx += 1
                 else:
                     self[strIndex].hide()
+                    self[chnameIndex].setText("")
     
     def __del__(self):       
         return
