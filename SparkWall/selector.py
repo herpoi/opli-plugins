@@ -32,16 +32,19 @@ from time import localtime, time, strftime
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_SKIN_IMAGE, pathExists
 from Tools.LoadPixmap import LoadPixmap
 ###################################################
+MyPiconsList = []
+
 class FillPiconsList(Thread):
-    def __init__(self, myList):
+    def __init__(self):
         Thread.__init__(self)
         self.session = session
-        self.list = myList
-        self.PicList = []
     def run(self):
+        global MyPiconsList
+        print "aqq"
+        print len(MyPiconsList)
         for idx in range( 0 , len(self.list) ):
-            self.PicList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.list[idx][0].split(':',10)[:10]) + '.png')))
-        return self.PicList
+            MyPiconsList.append(LoadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, 'picon/' + '_'.join(self.list[idx][0].split(':',10)[:10]) + '.png')))
+        return
         
 ###################################################
 
@@ -173,11 +176,11 @@ class SelectorWidget(Screen):
         if self.numOfLines % self.numOfRow > 0:
             self.numOfPages += 1
 
-        self.currPage = int(CurIdx/(self.numOfCol*self.numOfRow)) #idx=self.currPage * (self.numOfCol*self.numOfRow)
-        self.currLine = int((CurIdx - self.currPage*numOfCol*self.numOfRow)/self.numOfCol)
+        self.currPage = int(CurIdx /(self.numOfCol*self.numOfRow)) #idx=self.currPage * (self.numOfCol*self.numOfRow)
+        self.currLine = int(CurIdx / self.numOfCol)
 
-        self.dispX = CurIdx - self.currPage * self.numOfCol * self.numOfRow - self.currLine * self.numOfCol
-        self.dispY = self.currLine
+        self.dispX = CurIdx - self.currLine * self.numOfCol
+        self.dispY = self.currLine - self.currPage * self.numOfRow
         
 #            <eLabel                       position="30,%d" size="%d,3"                zPosition="4" backgroundColor="#f4f4f4"/>
         skin = """<screen name="SkypeWallWidget" position="center,center" title="" size="%d,%d">\n""" % (sz_w, sz_h) #wielkosc glownego okna
@@ -287,11 +290,17 @@ class SelectorWidget(Screen):
            
 #######################################################################################################################
     def onStart(self):
-        self.Timer = eTimer()
-        self.Timer.callback.append(self.startfillpixmapListThread)
-        self.Timer.start(1000, 1)
+        global MyPiconsList
+        if len(MyPiconsList) != self.numOfLines:
+            piconsThread = Thread( target = FillPiconsList )
+            piconsThread.start()
+        #self.Timer = eTimer()
+        #self.Timer.callback.append(self.startfillpixmapListThread)
+        #self.Timer.start(1000, 1)
         #self.VideoSize()
         self["marker"].setPixmap( self.markerPixmap )
+        self.calcMarkerPosY()
+        self.calcMarkerPosX()
         self.updateIcons()
         self.moveMarker()
         return
