@@ -91,8 +91,8 @@ class PiconsSelectorWidget(Screen):
         return
     
     def SelectorCallback(self, ret): # jako ret dostajemy nazwe wybranego itemu w 0
-        if self.SubTreeSelected == False:
-            if ret:
+        if ret:
+            if self.SubTreeSelected == False:
                 if ret[0] == "Clear picons folder":
                     self.deletePicons()
                     self.prepareListForSelector(self.SubTreesPath, "" , "Select picons size")
@@ -101,16 +101,11 @@ class PiconsSelectorWidget(Screen):
                     self.SubTreeSelected = True
                     self.prepareListForSelector(self.myItemsPath, ret[0], "Select Picons shape")
                     return
-            else:
-                self.close()
-                return
-        else: # we have picons selected, time to download them
-            ArchiveURL = "http://hybrid.xunil.pl/picons/%s.tar.gz" % ret[0]
-            ArchiveFile=resolveFilename(SCOPE_SKIN_IMAGE, 'picon/%s.tar.gz' % ret[0])
-
-            self.session.openWithCallback(self.ArchiveDownloaded ,Screens_Console, title = _("Installing %s") % ret[0], 
+            else: # we have picons selected, time to download them
+                ArchiveURL = "http://hybrid.xunil.pl/picons/%s.tar.gz" % ret[0]
+                ArchiveFile=resolveFilename(SCOPE_SKIN_IMAGE, 'picon/%s.tar.gz' % ret[0])
+                self.session.openWithCallback(self.ArchiveDownloaded ,Screens_Console, title = _("Installing %s") % ret[0], 
                                           cmdlist = [ '%s/Downloader.sh "PICONS" "%s" "%s"' % (self.myPath, resolveFilename(SCOPE_SKIN_IMAGE, 'picon'), ArchiveURL) ])
-            #self.myConsole.ePopen('wget http://hybrid.xunil.pl/picons/%s.picons -O %spicons.tgz; mv %spicons.tgz %spicons.tar.gz' % (ret[0] , resolveFilename(SCOPE_SKIN_IMAGE, 'picon/') ), self.ArchiveDownloaded )
         self.close()
         return
 
@@ -121,21 +116,3 @@ class PiconsSelectorWidget(Screen):
 
     def InstallArchive(self):
         return
-
-    def get_process(self, NazwaProcesu ):
-        pids = []
-        process = None
-        for i in os_listdir('/proc'):
-            if i.isdigit():
-                pids.append(i)
-
-        for pid in pids:
-            proc = open(os_path.join('/proc', pid, 'status'), 'r').readline()
-            print proc
-            if proc.find(NazwaProcesu):
-                process = pid
-
-        return process          
-
-    def is_running(self, pid):
-        return os_path.exists("/proc/%s" % str(pid))
