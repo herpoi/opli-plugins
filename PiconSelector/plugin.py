@@ -57,7 +57,6 @@ class PiconsSelectorWidget(Screen):
         if self.started == 0:
             self.started = 1
             self.myConsole.ePopen('%s/Downloader.sh "SYNC" "%s" "%s"' % (self.myPath,self.myItemsPath, self.myURL) , self.onStartcont() )
-            
         return
 
     def onStartcont(self):
@@ -99,7 +98,7 @@ class PiconsSelectorWidget(Screen):
                     self.prepareListForSelector(self.SubTreesPath, "" , "Select picons size")
                     return
                 else:
-                    maxwait = 10
+                    maxwait = 1
                     while pathExists('/tmp/.PICONS.SYNCED') is False or maxwait > 10:
                         sleep(1)
                         maxwait += 1
