@@ -18,6 +18,7 @@ from Tools.Directories import resolveFilename, pathExists, SCOPE_PLUGINS, SCOPE_
 from os import walk as os_walk, path as os_path, remove as os_remove, listdir as os_listdir
 from urllib2 import Request, urlopen, URLError, HTTPError
 import tarfile
+from time import sleep
 
 ####################################################
 # Wywołanie wtyczki w roznych miejscach
@@ -98,6 +99,10 @@ class PiconsSelectorWidget(Screen):
                     self.prepareListForSelector(self.SubTreesPath, "" , "Select picons size")
                     return
                 else:
+                    maxwait = 10
+                    while pathExists('/tmp/.PICONS.SYNCED') is False or maxwait > 10:
+                        sleep(1)
+                        maxwait += 1
                     self.SubTreeSelected = True
                     self.prepareListForSelector(self.myItemsPath, ret[0], "Select Picons shape")
                     return
