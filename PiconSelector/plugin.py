@@ -99,7 +99,8 @@ class PiconsSelectorWidget(Screen):
                     return
                 else:
                     maxwait = 1
-                    while pathExists('/tmp/.PICONS.SYNCED') is False or maxwait > 10:
+                    while pathExists('/tmp/.PICONS.SYNCED') is False or maxwait < 10:
+                        print "PiconSelector:SelectorCallback waiting for picons"
                         sleep(1)
                         maxwait += 1
                     self.SubTreeSelected = True

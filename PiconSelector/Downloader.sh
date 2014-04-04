@@ -16,7 +16,7 @@ fi
 case $Akcja in
 	SYNC) #czyszczenie pikon na wypadek zmian na web
 		rm -rf /tmp/.PICONS.SYNCED
-		rm -rf $Katalog/$pikon.png
+		#rm -rf $Katalog/$pikon.png
 		#czy mamy internet?
 		ping -c 1 www.wp.pl
 		[ $? -gt 0 ] && exit 0
@@ -30,6 +30,7 @@ case $Akcja in
 			wget $NaszURL$pikon.png -O $Katalog/$pikon.png 2>/dev/null
 		fi
 		touch /tmp/.PICONS.SYNCED
+		sync
 		done
     ;;
 	PICONS) # pobieranie i instalacja archiwum
@@ -51,6 +52,4 @@ case $Akcja in
 		fi 
 	;;
 esac
-
-
 exit 0
