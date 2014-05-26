@@ -25,6 +25,8 @@ from Components.ProgressBar import ProgressBar
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from enigma import ePicLoad, ePoint, getDesktop, eTimer, ePixmap, eEPGCache, eServiceReference, iPlayableService
 from Screens.Screen import Screen
+from Screens.EpgSelection import EPGSelection
+from Screens.EventView import  EventViewEPGSelect
 from ServiceReference import ServiceReference
 from threading import Thread, currentThread
 from thread import start_new_thread, allocate_lock
@@ -241,7 +243,7 @@ class SelectorWidget(Screen):
         if list == None or len(list) <= 0:
             self.close(None)
             
-        self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions"],
+        self["actions"] = ActionMap(["WizardActions", "DirectionActions", "ColorActions", "ChannelSelectEPGActions"],
         {
             "ok": self.ok_pressed,
             "back": self.back_pressed,
@@ -249,6 +251,7 @@ class SelectorWidget(Screen):
             "right": self.keyRight,
             "up": self.keyUp,
             "down": self.keyDown,
+            "showEPGList": self.openSingleServiceEPG,
         }, -1)
         
         self["curChannelName"] = Label(self.currList[CurIdx][1])
@@ -262,6 +265,8 @@ class SelectorWidget(Screen):
         self["NextEventTitle"] = Label()
         self["NowDuration"] = Label()
         self["NextDuration"] = Label()
+        self["NowDescription"] = Label()
+        self["NextDescription"] = Label()
         self["vzProgress"] = ProgressBar()
         
         chnameidx = -1
@@ -425,8 +430,8 @@ class SelectorWidget(Screen):
         self["curChannelName"].setText(self.currList[idx][1])
         
         current = ServiceReference(self.currList[idx][0])
-        nowepg, nowstart, nowend, nowname, nowduration, percentnow = self.getEPGNowNext(current.ref,0)
-        nextepg, nextstart, nextend, nextname, nextduration, percentnext = self.getEPGNowNext(current.ref,1)
+        nowepg, nowstart, nowend, nowname, nowduration, nowdesc, percentnow = self.getEPGNowNext(current.ref,0)
+        nextepg, nextstart, nextend, nextname, nextduration, nextdesc, percentnext = self.getEPGNowNext(current.ref,1)
         self["NowEventStart"].setText(nowstart)
         self["NextEventStart"].setText(nextstart)
         self["NowEventEnd"].setText(nowend)
@@ -435,6 +440,8 @@ class SelectorWidget(Screen):
         self["NextEventTitle"].setText(nextname)
         self["NowDuration"].setText(nowduration)
         self["NextDuration"].setText(nextduration)
+        self["NowDescription"].setText(nowdesc)
+        self["NextDescription"].setText(nextdesc)
         self["vzProgress"].setValue(percentnow)
         if config.plugins.SparkWall.ZapMode.value == "2ok": self.zap = True
         return
@@ -460,7 +467,7 @@ class SelectorWidget(Screen):
     def getEPGNowNext(self, ref, modus):
         # get now || next event
         if self.epgcache is not None:
-            event = self.epgcache.lookupEvent(['IBDCT', (ref.toString(), modus, -1)])
+            event = self.epgcache.lookupEvent(['IBDCTE', (ref.toString(), modus, -1)])
             if event:
                 if event[0][4]:
                     t = localtime(event[0][1])
@@ -474,6 +481,7 @@ class SelectorWidget(Screen):
                         eventstart = strftime("%H:%M", localtime(begin))
                         eventend = strftime("%H:%M", localtime(begin + duration))
                         eventtimename = ("%02d:%02d   %s") % (t[3],t[4], event[0][4])
+                        eventdesc = event[0][5]
                     elif modus == 1:
                         eventduration =_("%d min") % (duration / 60)
                         percent = 0
@@ -481,11 +489,55 @@ class SelectorWidget(Screen):
                         eventstart = strftime("%H:%M", localtime(begin))
                         eventend = strftime("%H:%M", localtime(begin + duration))
                         eventtimename = ("%02d:%02d   %s") % (t[3],t[4], event[0][4])
-                    return eventtimename, eventstart, eventend, eventname, eventduration, percent
+                        eventdesc = event[0][5]
+                    return eventtimename, eventstart, eventend, eventname, eventduration, eventdesc, percent
                 else:
-                    return _("No EPG data"), "", "", _("No EPG data"), "", ""
-        return _("No EPG data"), "", "", _("No EPG data"), "", ""
+                    return _("No EPG data"), "", "", _("No EPG data"), "", "", ""
+        return _("No EPG data"), "", "", _("No EPG data"), "", "", ""
 
+    def openSingleServiceEPG(self):
+        # show EPGList
+        idx = self.currLine * self.numOfCol +  self.dispX
+        current = ServiceReference(self.currList[idx][0])
+        service = eServiceReference(self.currList[idx][0])
+        self.sServiceList.setCurrentSelection(service)
+        self.session.open(EPGSelection, current.ref)
+        
+    def openEventView(self):
+        # stop exitTimer
+        # if self.exitTimer.isActive():
+        #    self.exitTimer.stop()
+        # show EPG Event
+        idx = self.currLine * self.numOfCol +  self.dispX
+        epglist = [ ]
+        self.epglist = epglist
+        service = ServiceReference(self.currList[idx][0])
+        ref = service.ref
+        evt = self.epgcache.lookupEventTime(ref, -1)
+        if evt:
+            epglist.append(evt)
+        evt = self.epgcache.lookupEventTime(ref, -1, 1)
+        if evt:
+            epglist.append(evt)
+        if epglist:
+            self.session.openWithCallback(self.EventViewEPGSelectCallBack, EventViewEPGSelect, epglist[0], service, self.eventViewCallback, self.openSingleServiceEPG, self.openSimilarList)
+
+    def EventViewEPGSelectCallBack(self):
+        # if enabled, start ExitTimer
+        # self.resetExitTimer()
+        pass
+
+    def eventViewCallback(self, setEvent, setService, val):
+        epglist = self.epglist
+        if len(epglist) > 1:
+            tmp = epglist[0]
+            epglist[0] = epglist[1]
+            epglist[1] = tmp
+            setEvent(epglist[0])
+
+    def openSimilarList(self, eventid, refstr):
+        self.session.open(EPGSelection, refstr, None, eventid)
+        
     def InitVideoSize(self):
         #self.VideoSize
         self.Timer = eTimer()

@@ -107,5 +107,6 @@ class SparkWallWidget(Screen):
             self.servicelist.setCurrentSelection(service) #wybieramy serwis na liscie
             self.servicelist.zap(enable_pipzap = True) # i przelaczamy
         else:
+            self.servicelist.setCurrentSelection(self.curRef.ref)
             printDBG("[SparkWall] Nothing selected")
         return
